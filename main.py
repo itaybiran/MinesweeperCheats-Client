@@ -10,7 +10,6 @@ MIN_TIME = 0
 INITIALIZE_TIME = 0
 
 
-
 class CheatsWidget(QWidget):
 
     def __init__(self):
@@ -35,12 +34,6 @@ class CheatsWidget(QWidget):
             stop_timer(pid)
 
 
-
-
-
-
-
-
 class ChangeTimeDialog(QDialog):
     def __init__(self):
         super(ChangeTimeDialog, self).__init__()
@@ -54,6 +47,7 @@ class ChangeTimeDialog(QDialog):
             self.close()
         else:
             self.ErrorLabel.setText("Not a valid input")
+
 
 app = QApplication(sys.argv)
 cheats = CheatsWidget()
