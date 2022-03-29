@@ -1,1 +1,1 @@
-# WinmineClient2
+# WinmineClient
