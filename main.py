@@ -10,8 +10,36 @@ MIN_TIME = 0
 INITIALIZE_TIME = 0
 
 
-class CheatsWidget(QWidget):
+class LoginScreen(QDialog):
+    def __init__(self):
+        super(LoginScreen, self).__init__()
+        loadUi("gui/login.ui", self)
+        self.LoginButton.clicked.connect(self.show_cheats_screen)
+        self.NewUserButton.clicked.connect(self.show_signup_screen)
 
+    def show_cheats_screen(self):
+        cheats = CheatsWidget()
+        widget.addWidget(cheats)
+        widget.setCurrentIndex(widget.currentIndex() + 1)
+
+    def show_signup_screen(self):
+        signup = SignupScreen()
+        widget.addWidget(signup)
+        widget.setCurrentIndex(widget.currentIndex() + 1)
+
+
+class SignupScreen(QDialog):
+    def __init__(self):
+        super(SignupScreen, self).__init__()
+        loadUi("gui/signup.ui", self)
+        self.OldUserButton.clicked.connect(self.show_login_screen)
+
+    def show_login_screen(self):
+        login = LoginScreen()
+        widget.setCurrentIndex(widget.currentIndex() - 1)
+
+
+class CheatsWidget(QDialog):
     def __init__(self):
         super(CheatsWidget, self).__init__()
         loadUi("gui/cheats_widget.ui", self)
@@ -50,11 +78,11 @@ class ChangeTimeDialog(QDialog):
 
 
 app = QApplication(sys.argv)
-cheats = CheatsWidget()
+login = LoginScreen()
 widget = QStackedWidget()
-widget.addWidget(cheats)
-widget.setFixedWidth(1000)
-widget.setFixedHeight(600)
+widget.addWidget(login)
+widget.setFixedWidth(700)
+widget.setFixedHeight(400)
 widget.show()
 try:
     sys.exit(app.exec_())

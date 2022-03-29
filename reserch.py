@@ -11,7 +11,6 @@ import timer
 
 ConnectRegistry(None, HKEY_LOCAL_MACHINE)
 
-
 from win32con import PROCESS_VM_READ, PROCESS_ALL_ACCESS, SW_SHOW
 
 MAX_HEIGHT = 30
@@ -56,7 +55,7 @@ VALUE_TO_SYMBOL = {0x8E: "RIGHT_FLAG",
                    0x48: "EIGHT",
                    0x10: "BOUNDARY"
                    }
-UNUSED_AREA =  0x0F
+UNUSED_AREA = 0x0F
 BOUNDARY = 0x10
 TWO_LINES = 0x20
 CONVERT_TYPE = {"<class 'int'>": REG_DWORD,
@@ -79,6 +78,7 @@ BEST_TIMES_ADDRESS = {EASY_MODE: BEST_TIME_EASY_ADDRESS,
 BEST_TIME_NAMES_ADDRESS = {EASY_MODE: BEST_TIME_NAME_EASY_ADDRESS,
                            INTIMIDATE_MODE: BEST_TIME_NAME_INTIMIDATE_ADDRESS,
                            EXPERT_MODE: BEST_TIME_NAME_EXPERT_ADDRESS}
+
 
 def get_process_pid(process_name):
     """A function that returns True and the pid of a process if it is currently running,
@@ -108,7 +108,8 @@ def read_process_memory(pid, memory_address, number_of_bytes_to_read):
     handle = kernel32.OpenProcess(PROCESS_VM_READ, False, pid)
     buffer = (ctypes.c_byte * number_of_bytes_to_read)()
     bytes_read = ctypes.c_ulonglong()
-    value = kernel32.ReadProcessMemory(handle, memory_address, buffer, number_of_bytes_to_read, ctypes.byref(bytes_read))
+    value = kernel32.ReadProcessMemory(handle, memory_address, buffer, number_of_bytes_to_read,
+                                       ctypes.byref(bytes_read))
     kernel32.CloseHandle(handle)
     return struct.unpack(BYTES_TO_READ[number_of_bytes_to_read], buffer)[0]
 
@@ -160,10 +161,12 @@ def set_board(pid, board):
     for memory_address in range(BOARD_BOUNDARY_TOP_LEFT_CORNER_ADDRESS, LAST_MEMORY_REPRESENTING_BOARD):
         write_process_memory(pid, memory_address, UNUSED_AREA, 1)
     # Sets the top boundary
-    for memory_address in range(BOARD_BOUNDARY_TOP_LEFT_CORNER_ADDRESS, BOARD_BOUNDARY_TOP_LEFT_CORNER_ADDRESS + width + 2):
+    for memory_address in range(BOARD_BOUNDARY_TOP_LEFT_CORNER_ADDRESS,
+                                BOARD_BOUNDARY_TOP_LEFT_CORNER_ADDRESS + width + 2):
         write_process_memory(pid, memory_address, BOUNDARY, 1)
     # Sets the bottom boundary
-    for memory_address in range(BOARD_BOUNDARY_TOP_LEFT_CORNER_ADDRESS + (height + 1) * TWO_LINES, BOARD_BOUNDARY_TOP_LEFT_CORNER_ADDRESS + (height + 1) * TWO_LINES + width + 2):
+    for memory_address in range(BOARD_BOUNDARY_TOP_LEFT_CORNER_ADDRESS + (height + 1) * TWO_LINES,
+                                BOARD_BOUNDARY_TOP_LEFT_CORNER_ADDRESS + (height + 1) * TWO_LINES + width + 2):
         write_process_memory(pid, memory_address, BOUNDARY, 1)
     # Sets the body of the board
     for row in range(height):
@@ -171,7 +174,9 @@ def set_board(pid, board):
         write_process_memory(pid, memory_address, BOUNDARY, 1)
         for column in range(width):
             memory_address = BOARD_TOP_LEFT_CORNER + column + row * TWO_LINES
-            write_process_memory(pid, memory_address, list(VALUE_TO_SYMBOL.keys())[list(VALUE_TO_SYMBOL.values()).index(board[row][column])], 1)
+            write_process_memory(pid, memory_address,
+                                 list(VALUE_TO_SYMBOL.keys())[list(VALUE_TO_SYMBOL.values()).index(board[row][column])],
+                                 1)
         memory_address = BOARD_TOP_LEFT_CORNER + width + row * TWO_LINES
         write_process_memory(pid, memory_address, BOUNDARY, 1)
 
@@ -244,12 +249,13 @@ def set_best_times(pid, difficulty, name, score):
             write_process_memory(pid, BEST_TIME_NAMES_ADDRESS[difficulty] + 2 * index, ord(name[index]), 1)
         except:
             write_process_memory(pid, BEST_TIME_NAMES_ADDRESS[difficulty] + 2 * index, 0, 1)
+
+
 """
     for index, char in enumerate(name):
         write_process_memory(pid, BEST_TIME_NAMES_ADDRESS[difficulty] + 2*index, ord(char), 1)
 
 """
-
 
 """
 def redraw_game():
@@ -262,31 +268,126 @@ def redraw_game():
 
 def main():
     pid = get_process_pid("Winmine__XP.exe")[1]
-    board = [['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'], ['HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'], ['SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'], ['HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'], ['SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'], ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'], ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'], ['HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'], ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE']]
-    board_expert = [['HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB'], ['SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE'], ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE'], ['HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE'], ['HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB'], ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE'], ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'], ['HIDDEN_BOMB', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'], ['HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE'], ['HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'], ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB'], ['SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'], ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'], ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'], ['SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB'], ['SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE']]
-    #board = get_board(pid)
-    #set_board_size(pid, 16, 30)
-    #set_mode(pid, 2)
-    #set_board(pid, board_expert)
-    #set_best_times(pid, 1, "row", 43534)
-    #write_process_memory(pid, 0x01005b20, 0X143, 2)
-    #write_process_memory(pid, 0x01005b2c, 0X1f8, 2)
+    board = [
+        ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+         'SAFE_PLACE'],
+        ['HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+         'SAFE_PLACE', 'SAFE_PLACE'],
+        ['SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+         'SAFE_PLACE', 'SAFE_PLACE'],
+        ['HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+         'SAFE_PLACE', 'SAFE_PLACE'],
+        ['SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+         'SAFE_PLACE', 'SAFE_PLACE'],
+        ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+         'SAFE_PLACE'],
+        ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+         'SAFE_PLACE'],
+        ['HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE',
+         'SAFE_PLACE', 'SAFE_PLACE'],
+        ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB',
+         'SAFE_PLACE', 'SAFE_PLACE']]
+    board_expert = [['HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE',
+                     'HIDDEN_BOMB', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB'],
+                    ['SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB',
+                     'HIDDEN_BOMB', 'SAFE_PLACE'],
+                    ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB',
+                     'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB',
+                     'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE'],
+                    ['HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB',
+                     'SAFE_PLACE', 'SAFE_PLACE'],
+                    ['HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'HIDDEN_BOMB'],
+                    ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE'],
+                    ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE'],
+                    ['HIDDEN_BOMB', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'],
+                    ['HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE'],
+                    ['HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE',
+                     'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE'],
+                    ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB',
+                     'HIDDEN_BOMB', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB'],
+                    ['SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE'],
+                    ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE'],
+                    ['SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE'],
+                    ['SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'HIDDEN_BOMB', 'HIDDEN_BOMB'],
+                    ['SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'HIDDEN_BOMB', 'SAFE_PLACE',
+                     'HIDDEN_BOMB', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE', 'SAFE_PLACE',
+                     'SAFE_PLACE', 'SAFE_PLACE']]
+    # board = get_board(pid)
+    # set_board_size(pid, 16, 30)
+    # set_mode(pid, 2)
+    # set_board(pid, board_expert)
+    # set_best_times(pid, 1, "row", 43534)
+    # write_process_memory(pid, 0x01005b20, 0X143, 2)
+    # write_process_memory(pid, 0x01005b2c, 0X1f8, 2)
     start_timer(pid)
 
-    #write_process_memory(pid, 0x01005b88, 0X4d, 1)
+    # write_process_memory(pid, 0x01005b88, 0X4d, 1)
 
-    #print(get_board(pid))
-    #for i in board:
+    # print(get_board(pid))
+    # for i in board:
     #    print(i)
-    #set_number_of_bombs(pid, 44)
-    #count_backward(pid, 10)
-    #write_process_memory(pid, 0X01006920, 9, 10)
-    #print(str(get_board_easy(pid)) + "\n" + str(get_board_size(pid)) + "\n" + str(get_mode(pid)) + "\n" + str(get_number_of_bombs(pid)) + "\n")
-    #set_mode(pid, 3)
-    #set_board_size(pid, 13,12)
+    # set_number_of_bombs(pid, 44)
+    # count_backward(pid, 10)
+    # write_process_memory(pid, 0X01006920, 9, 10)
+    # print(str(get_board_easy(pid)) + "\n" + str(get_board_size(pid)) + "\n" + str(get_mode(pid)) + "\n" + str(get_number_of_bombs(pid)) + "\n")
+    # set_mode(pid, 3)
+    # set_board_size(pid, 13,12)
 
 
 if __name__ == '__main__':
     main()
-
-
