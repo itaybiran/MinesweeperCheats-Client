@@ -24,7 +24,7 @@ pyinstaller-hooks-contrib==2021.1
 Pymem==1.8.5
 PyMsgBox==1.0.9
 pyperclip==1.8.2
-PyQt5==5.15.4
+PyQt5~=5.15.6
 PyQt5-Qt5==5.15.2
 PyQt5-sip==12.9.0
 PyRect==0.1.4
@@ -36,3 +36,5 @@ rockstar-py==2.1.0
 tk==0.1.0
 traitlets==5.1.0
 wcwidth==0.2.5
+
+requests~=2.27.1
