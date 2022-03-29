@@ -35,7 +35,6 @@ class SignupScreen(QDialog):
         self.OldUserButton.clicked.connect(self.show_login_screen)
 
     def show_login_screen(self):
-        login = LoginScreen()
         widget.setCurrentIndex(widget.currentIndex() - 1)
 
 
