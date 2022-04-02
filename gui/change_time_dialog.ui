@@ -22,27 +22,43 @@
      <height>191</height>
     </rect>
    </property>
+   <property name="styleSheet">
+    <string notr="true">background:qlineargradient(spread:pad, x1:1, y1:0, x2:0, y2:1, stop:0 rgba(45, 45, 45, 255), stop:1 rgba(113, 113, 113, 255))</string>
+   </property>
    <widget class="QLineEdit" name="ChangeTimeTextField">
     <property name="geometry">
      <rect>
       <x>90</x>
-      <y>60</y>
+      <y>70</y>
       <width>141</width>
-      <height>31</height>
+      <height>20</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:rgba(236, 158, 255, 100);
+border-radius:3px;
+color:white;</string>
+    </property>
+    <property name="placeholderText">
+     <string> new time...</string>
     </property>
    </widget>
    <widget class="QPushButton" name="OkButton">
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>130</y>
+      <y>120</y>
       <width>101</width>
       <height>28</height>
      </rect>
     </property>
     <property name="cursor">
      <cursorShape>ClosedHandCursor</cursorShape>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:rgba(236, 158, 255, 150);
+border-radius:3px;
+color: white;</string>
     </property>
     <property name="text">
      <string>OK</string>
@@ -52,13 +68,14 @@
     <property name="geometry">
      <rect>
       <x>105</x>
-      <y>106</y>
+      <y>99</y>
       <width>111</width>
-      <height>16</height>
+      <height>15</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: red;</string>
+     <string notr="true">background-color:rgba(0,0,0,0);
+color:rgb(255, 82, 82)</string>
     </property>
     <property name="text">
      <string/>
