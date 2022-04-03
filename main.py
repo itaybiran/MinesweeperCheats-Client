@@ -1,4 +1,3 @@
-import asyncio
 import sys
 
 from PyQt5.QtWidgets import QApplication, QStackedWidget, QDialog
@@ -6,12 +5,14 @@ from PyQt5.uic import loadUi
 
 from reserch import *
 import requests
+import websocket
 
 MAX_TIME = 999
 MIN_TIME = 0
 INITIALIZE_TIME = 0
 SERVER_URL = "http://127.0.0.1:8000"
-current_user = {"nickname": "", "rank": "", "xp": ""}
+current_user = {"nickname": "", "rank": "", "xp": "", "token": ""}
+websocket.enableTrace(True)
 
 
 def calculate_rank(xp):
@@ -27,6 +28,7 @@ def set_current_user_info(token):
     current_user["nickname"] = info["nickname"]
     current_user["rank"] = info["rank"]
     current_user["xp"] = info["xp"]
+    current_user["token"] = token
 
 
 class Window(QDialog):
@@ -125,11 +127,7 @@ class MultiplayerScreen(Window):
         self.ConnectButton.clicked.connect(self.connect)
 
     def connect(self):
-        try:
-            asyncio.run("""connect websocket""")
-            self.ErrorLabel.setText("connected successfully")
-        except:
-            self.ErrorLabel.setText("could not connect")
+        pass
 
 
 class CheatsScreen(Window):
