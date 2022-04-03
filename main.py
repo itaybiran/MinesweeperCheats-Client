@@ -29,6 +29,11 @@ def set_current_user_info(token):
     current_user["xp"] = info["xp"]
 
 
+def update_current_user_info(token):
+    response = requests.post(f"{SERVER_URL}/users/save",
+                             json=current_user, headers={"Authorization": token})
+
+
 def update_current_user_rank(xp):
     current_user["rank"] = calculate_rank(xp)
 
@@ -152,7 +157,9 @@ class CheatsScreen(Window):
         self.NameLabel.setText("Hello " + current_user["nickname"])
         self.RankLabel.setText("Rank: " + str(current_user["rank"]))
         self.XpLabel.setText("Xp: " + str(current_user["xp"]))
-        update_current_user_rank(100)
+        update_current_user_xp(100)
+        update_current_user_rank(current_user["xp"])
+        update_current_user_info("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuaWNrbmFtZSI6InlvbmkiLCJyYW5rIjowLCJ4cCI6MCwiZXhwIjoxNjQ4OTc3MTA2fQ.c7RZRNXxN6pCingIItLobokQWd7kvODYtdFVcJNTvlg")
 
     def show_change_time_dialog(self):
         change_time_dialog = ChangeTimeDialog(self.winmine)
