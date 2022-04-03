@@ -1,6 +1,7 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication, QStackedWidget, QDialog
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QStackedWidget, QDialog, QListWidgetItem, QListWidget
 from PyQt5.uic import loadUi
 
 from reserch import *
@@ -11,7 +12,7 @@ MAX_TIME = 999
 MIN_TIME = 0
 INITIALIZE_TIME = 0
 SERVER_URL = "http://127.0.0.1:8000"
-current_user = {"nickname": "", "rank": "", "xp": "", "token": ""}
+current_user = {"nickname": "", "rank": "", "xp": "", "token": "", "ws": ""}
 websocket.enableTrace(True)
 
 
@@ -125,9 +126,31 @@ class MultiplayerScreen(Window):
         loadUi("gui/multiplayer.ui", self)
         self.CheatsButton.clicked.connect(super().show_cheats_screen)
         self.ConnectButton.clicked.connect(self.connect)
+        self.SendButton.clicked.connect(self.send_message)
+
+    def send_message(self):
+        if current_user["ws"] != "" and current_user["ws"].keep_running:
+            message = self.ChatField.text()
+            current_user["ws"].send(message)
+            self.ChatField.setText("")
+            item = QListWidgetItem(message)
+            item.setTextAlignment(Qt.AlignLeft)
+            self.MessagesTable.addItem(item)
+            self.MessagesTable.scrollToBottom()
+
+    def on_message(self, ws, message):
+        self.ConnectingLabel.setText("")
+        item = QListWidgetItem(message)
+        item.setTextAlignment(Qt.AlignRight)
+        self.MessagesTable.addItem(item)
+        self.MessagesTable.scrollToBottom()
 
     def connect(self):
-        pass
+        if current_user["ws"] == "" or not current_user["ws"].keep_running:
+            self.ConnectingLabel.setText("Connecting...")
+            current_user["ws"] = websocket.WebSocketApp(f"ws://127.0.0.1:8000/ws?nickname={current_user['nickname']}&rank={current_user['rank']}&difficulty=0", header={"Authorization": current_user["token"]}, on_message=self.on_message)
+            self.thread = threading.Thread(target=current_user["ws"].run_forever)
+            self.thread.start()
 
 
 class CheatsScreen(Window):
@@ -142,6 +165,8 @@ class CheatsScreen(Window):
         self.NameLabel.setText("Hello " + current_user["nickname"])
         self.RankLabel.setText("Rank: " + str(current_user["rank"]))
         self.XpLabel.setText("Xp: " + str(current_user["xp"]))
+        if current_user["ws"] != "" and current_user["ws"].keep_running:
+            current_user["ws"].close()
 
     def show_change_time_dialog(self):
         change_time_dialog = ChangeTimeDialog(self.winmine)
@@ -188,6 +213,8 @@ def main():
         sys.exit(app.exec_())
     except:
         print("Exiting")
+        if current_user["ws"] != "" and current_user["ws"].keep_running:
+            current_user["ws"].close()
         sys.exit()
 
 
