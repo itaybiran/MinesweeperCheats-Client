@@ -1,3 +1,4 @@
+import json
 import sys
 
 from PyQt5.QtCore import Qt
@@ -83,6 +84,8 @@ class LoginScreen(Window):
                 self.show_cheats_screen()
             elif response.status_code == 401:
                 self.ErrorLabel.setText("Wrong username or password")
+            elif response.status_code == 400:
+                self.ErrorLabel.setText("user is already connected")
         else:
             self.ErrorLabel.setText("Please fill all fields")
 
@@ -215,6 +218,7 @@ def main():
         print("Exiting")
         if current_user["ws"] != "" and current_user["ws"].keep_running:
             current_user["ws"].close()
+        requests.post(f"{SERVER_URL}/users/disconnect", headers={"Authorization": current_user["token"]}).json()
         sys.exit()
 
 
