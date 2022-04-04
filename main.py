@@ -1,14 +1,12 @@
-import json
 import sys
 
-from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QStackedWidget, QDialog, QListWidgetItem, QListWidget, QVBoxLayout, \
-    QPushButton
+from PyQt5.QtWidgets import QApplication, QStackedWidget, QDialog, QListWidgetItem, QPushButton
 from PyQt5.uic import loadUi
 
-from reserch import *
+from utils.display_board import calculate_board, add_button
+from utils.reserch import *
 import requests
 import websocket
 
@@ -133,19 +131,7 @@ class MultiplayerScreen(Window):
         self.CheatsButton.clicked.connect(super().show_cheats_screen)
         self.ConnectButton.clicked.connect(self.connect)
         self.SendButton.clicked.connect(self.send_message)
-        self.button = QPushButton("")
-        self.button.setVisible(True)
-        self.button.setParent(self)
-        self.button.move(20, 10)
-        self.button.setFixedHeight(24)
-        self.button.setFixedWidth(24)
-        self.button.setIcon(QIcon("img/one"))
-        self.button.setStyleSheet(
-            "background-color:transparent;"
-        )
 
-    def add_button(self, string):
-        pass
 
     def send_message(self):
         if current_user["ws"] != "" and current_user["ws"].keep_running:
@@ -179,6 +165,7 @@ class CheatsScreen(Window):
         self.ChangeTimeButton.clicked.connect(self.show_change_time_dialog)
         self.InitializeTimerButton.clicked.connect(self.initialize_timer_button)
         self.ActiveTimerButton.toggled.connect(self.active_timer_button)
+        self.RevealBoardButton.clicked.connect(self.show_reveal_board_dialog)
         self.MultiplayerButton.clicked.connect(super().show_multiplayer_screen)
         self.ActiveTimerButton.setChecked(True)
         self.NameLabel.setText("Hello " + current_user["nickname"])
@@ -190,6 +177,10 @@ class CheatsScreen(Window):
     def show_change_time_dialog(self):
         change_time_dialog = ChangeTimeDialog(self.winmine)
         change_time_dialog.exec()
+
+    def show_reveal_board_dialog(self):
+        reveal_board_dialog = RevealBoardDialog(self.winmine)
+        reveal_board_dialog.exec()
 
     def initialize_timer_button(self):
         self.winmine.change_timer(INITIALIZE_TIME)
@@ -217,6 +208,28 @@ class ChangeTimeDialog(QDialog):
             self.ErrorLabel.setText("Not a valid input")
 
 
+class RevealBoardDialog(QDialog):
+    def __init__(self, winmine):
+        self.winmine: WinmineExe = winmine
+        super(RevealBoardDialog, self).__init__()
+        loadUi("gui/reveal_board_dialog.ui", self)
+        self.reveal_board()
+
+    def reveal_board(self):
+        current_board = calculate_board(self.winmine.get_board())
+        print(current_board)
+        x = 10
+        print(x)
+        y = 10
+        for row in range(len(current_board)):
+            for column in range(len(current_board[row])):
+                print(current_board[row][column])
+                add_button(self, current_board[row][column], x, y)
+                x += 24
+            x = 10
+            y += 24
+
+
 def main():
     pid = get_process_pid("Winmine__XP.exe")[1]
     winmine = WinmineExe(pid)
@@ -236,6 +249,11 @@ def main():
             current_user["ws"].close()
         requests.post(f"{SERVER_URL}/users/disconnect", headers={"Authorization": current_user["token"]}).json()
         sys.exit()
+
+def main2():
+    pid = get_process_pid("Winmine__XP.exe")[1]
+    winmine = WinmineExe(pid)
+    print(winmine.get_board())
 
 
 if __name__ == '__main__':
