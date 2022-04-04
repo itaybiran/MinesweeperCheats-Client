@@ -1,8 +1,11 @@
 import json
 import sys
 
+from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QStackedWidget, QDialog, QListWidgetItem, QListWidget
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QStackedWidget, QDialog, QListWidgetItem, QListWidget, QVBoxLayout, \
+    QPushButton
 from PyQt5.uic import loadUi
 
 from reserch import *
@@ -130,6 +133,19 @@ class MultiplayerScreen(Window):
         self.CheatsButton.clicked.connect(super().show_cheats_screen)
         self.ConnectButton.clicked.connect(self.connect)
         self.SendButton.clicked.connect(self.send_message)
+        self.button = QPushButton("")
+        self.button.setVisible(True)
+        self.button.setParent(self)
+        self.button.move(20, 10)
+        self.button.setFixedHeight(24)
+        self.button.setFixedWidth(24)
+        self.button.setIcon(QIcon("img/one"))
+        self.button.setStyleSheet(
+            "background-color:transparent;"
+        )
+
+    def add_button(self, string):
+        pass
 
     def send_message(self):
         if current_user["ws"] != "" and current_user["ws"].keep_running:
