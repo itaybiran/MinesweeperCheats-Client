@@ -130,6 +130,7 @@ class MultiplayerScreen(Window):
         self.ConnectButton.clicked.connect(self.connect)
         self.SendButton.clicked.connect(self.send_message)
         self.NameLabel.setText(current_user["nickname"])
+        self.messages = []
 
     def send_message(self):
         if current_user["ws"] != "" and current_user["ws"].keep_running:
@@ -140,22 +141,38 @@ class MultiplayerScreen(Window):
             item.setTextAlignment(Qt.AlignLeft)
             self.MessagesTable.addItem(item)
             self.MessagesTable.scrollToBottom()
+        else:
+            self.ErrorLabel.setText("find an opponent first")
 
     def on_message(self, ws, message):
-        self.ConnectingLabel.setText("")
-        item = QListWidgetItem(message)
-        item.setTextAlignment(Qt.AlignRight)
-        self.MessagesTable.addItem(item)
-        self.MessagesTable.scrollToBottom()
+        self.messages.append(message)
+        if len(self.messages) > 1:
+            item = QListWidgetItem(message)
+            item.setTextAlignment(Qt.AlignRight)
+            self.MessagesTable.addItem(item)
+            self.MessagesTable.scrollToBottom()
+        else:
+            self.ConnectingLabel.setText("")
+            self.OpponentNameLabel.setText(message)
+            self.MessagesTable.clear()
+            self.ConnectButton.setText("Disconnect")
 
     def connect(self):
         if current_user["ws"] == "" or not current_user["ws"].keep_running:
+            self.ErrorLabel.setText("")
             self.ConnectingLabel.setText("Connecting...")
             current_user["ws"] = websocket.WebSocketApp(
                 f"ws://127.0.0.1:8000/ws?nickname={current_user['nickname']}&rank={current_user['rank']}&difficulty=0",
                 header={"Authorization": current_user["token"]}, on_message=self.on_message)
             self.thread = threading.Thread(target=current_user["ws"].run_forever)
             self.thread.start()
+        elif self.ConnectButton.text() == "Disconnect":
+            requests.post(f"{SERVER_URL}/disconnect", headers={"Authorization": current_user["token"]}).json()
+            current_user["ws"].close()
+            self.ConnectButton.setText("Connect")
+            self.OpponentNameLabel.setText("")
+            self.MessagesTable.clear()
+            self.messages = []
 
 
 class CheatsScreen(Window):

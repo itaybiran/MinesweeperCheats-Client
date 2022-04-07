@@ -521,26 +521,6 @@ background-color:transparent;</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="ErrorLabel">
-    <property name="geometry">
-     <rect>
-      <x>280</x>
-      <y>160</y>
-      <width>131</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">color:red;
-background-color:rgba(0,0,0,0);</string>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="ChatField">
     <property name="geometry">
      <rect>
@@ -1567,7 +1547,7 @@ color:white;</string>
     <property name="font">
      <font>
       <family>Segoe UI Black</family>
-      <pointsize>16</pointsize>
+      <pointsize>14</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
@@ -2049,7 +2029,7 @@ QPushButton
     <property name="font">
      <font>
       <family>Segoe UI Black</family>
-      <pointsize>16</pointsize>
+      <pointsize>14</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
@@ -2075,9 +2055,57 @@ color: white;
      <string>Multiplayer</string>
     </property>
    </widget>
+   <widget class="QLabel" name="OpponentNameLabel">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>40</y>
+      <width>71</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Black</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:transparent;
+color:white;
+border:0</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ErrorLabel">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>344</y>
+      <width>281</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:transparent;
+color:rgb(231, 73, 52)</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
    <zorder>ConnectButton</zorder>
    <zorder>InfoLabel</zorder>
-   <zorder>ErrorLabel</zorder>
    <zorder>ChatField</zorder>
    <zorder>SendButton</zorder>
    <zorder>MessagesTable</zorder>
@@ -2086,6 +2114,8 @@ color: white;
    <zorder>MultiplayerButton</zorder>
    <zorder>NameLabel</zorder>
    <zorder>CheatsButton</zorder>
+   <zorder>OpponentNameLabel</zorder>
+   <zorder>ErrorLabel</zorder>
   </widget>
  </widget>
  <resources/>

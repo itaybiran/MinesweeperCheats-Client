@@ -2911,7 +2911,7 @@ color:white;</string>
     <property name="font">
      <font>
       <family>Segoe UI Black</family>
-      <pointsize>16</pointsize>
+      <pointsize>14</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
@@ -3391,7 +3391,7 @@ color: white;
     <property name="font">
      <font>
       <family>Segoe UI Black</family>
-      <pointsize>16</pointsize>
+      <pointsize>14</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
