@@ -85,8 +85,6 @@ class LoginScreen(Window):
                 self.show_cheats_screen()
             elif response.status_code == 401:
                 self.ErrorLabel.setText("Wrong username or password")
-            elif response.status_code == 400:
-                self.ErrorLabel.setText("user is already connected")
         else:
             self.ErrorLabel.setText("Please fill all fields")
 
@@ -131,7 +129,7 @@ class MultiplayerScreen(Window):
         self.CheatsButton.clicked.connect(super().show_cheats_screen)
         self.ConnectButton.clicked.connect(self.connect)
         self.SendButton.clicked.connect(self.send_message)
-
+        self.NameLabel.setText(current_user["nickname"])
 
     def send_message(self):
         if current_user["ws"] != "" and current_user["ws"].keep_running:
@@ -153,7 +151,9 @@ class MultiplayerScreen(Window):
     def connect(self):
         if current_user["ws"] == "" or not current_user["ws"].keep_running:
             self.ConnectingLabel.setText("Connecting...")
-            current_user["ws"] = websocket.WebSocketApp(f"ws://127.0.0.1:8000/ws?nickname={current_user['nickname']}&rank={current_user['rank']}&difficulty=0", header={"Authorization": current_user["token"]}, on_message=self.on_message)
+            current_user["ws"] = websocket.WebSocketApp(
+                f"ws://127.0.0.1:8000/ws?nickname={current_user['nickname']}&rank={current_user['rank']}&difficulty=0",
+                header={"Authorization": current_user["token"]}, on_message=self.on_message)
             self.thread = threading.Thread(target=current_user["ws"].run_forever)
             self.thread.start()
 
@@ -168,7 +168,7 @@ class CheatsScreen(Window):
         self.RevealBoardButton.clicked.connect(self.show_reveal_board_dialog)
         self.MultiplayerButton.clicked.connect(super().show_multiplayer_screen)
         self.ActiveTimerButton.setChecked(True)
-        self.NameLabel.setText("Hello " + current_user["nickname"])
+        self.NameLabel.setText(current_user["nickname"])
         self.RankLabel.setText("Rank: " + str(current_user["rank"]))
         self.XpLabel.setText("Xp: " + str(current_user["xp"]))
         if current_user["ws"] != "" and current_user["ws"].keep_running:
@@ -217,17 +217,16 @@ class RevealBoardDialog(QDialog):
 
     def reveal_board(self):
         current_board = calculate_board(self.winmine.get_board())
-        print(current_board)
         x = 10
-        print(x)
         y = 10
         for row in range(len(current_board)):
-            for column in range(len(current_board[row])):
-                print(current_board[row][column])
-                add_button(self, current_board[row][column], x, y)
-                x += 24
             x = 10
-            y += 24
+            for column in range(len(current_board[row])):
+                add_button(self, current_board[row][column], x, y)
+                x += 16
+            y += 16
+        self.setFixedHeight(y + 16)
+        self.setFixedWidth(x + 16)
 
 
 def main():
@@ -247,8 +246,9 @@ def main():
         print("Exiting")
         if current_user["ws"] != "" and current_user["ws"].keep_running:
             current_user["ws"].close()
-        requests.post(f"{SERVER_URL}/users/disconnect", headers={"Authorization": current_user["token"]}).json()
+        requests.post(f"{SERVER_URL}/disconnect", headers={"Authorization": current_user["token"]}).json()
         sys.exit()
+
 
 def main2():
     pid = get_process_pid("Winmine__XP.exe")[1]
