@@ -135,12 +135,13 @@ class MultiplayerScreen(Window):
     def send_message(self):
         if current_user["ws"] != "" and current_user["ws"].keep_running:
             message = self.ChatField.text()
-            current_user["ws"].send(message)
-            self.ChatField.setText("")
-            item = QListWidgetItem(message)
-            item.setTextAlignment(Qt.AlignLeft)
-            self.MessagesTable.addItem(item)
-            self.MessagesTable.scrollToBottom()
+            if message != "":
+                current_user["ws"].send(message)
+                self.ChatField.setText("")
+                item = QListWidgetItem(message)
+                item.setTextAlignment(Qt.AlignLeft)
+                self.MessagesTable.addItem(item)
+                self.MessagesTable.scrollToBottom()
         else:
             self.ErrorLabel.setText("find an opponent first")
 
@@ -155,11 +156,11 @@ class MultiplayerScreen(Window):
             self.ConnectingLabel.setText("")
             self.OpponentNameLabel.setText(message)
             self.MessagesTable.clear()
-            self.ConnectButton.setText("Disconnect")
 
     def connect(self):
         if current_user["ws"] == "" or not current_user["ws"].keep_running:
             self.ErrorLabel.setText("")
+            self.ConnectButton.setText("Disconnect")
             self.ConnectingLabel.setText("Connecting...")
             current_user["ws"] = websocket.WebSocketApp(
                 f"ws://127.0.0.1:8000/ws?nickname={current_user['nickname']}&rank={current_user['rank']}&difficulty=0",
@@ -170,6 +171,7 @@ class MultiplayerScreen(Window):
             requests.post(f"{SERVER_URL}/disconnect", headers={"Authorization": current_user["token"]}).json()
             current_user["ws"].close()
             self.ConnectButton.setText("Connect")
+            self.ConnectingLabel.setText("")
             self.OpponentNameLabel.setText("")
             self.MessagesTable.clear()
             self.messages = []
@@ -190,6 +192,7 @@ class CheatsScreen(Window):
         self.XpLabel.setText("Xp: " + str(current_user["xp"]))
         if current_user["ws"] != "" and current_user["ws"].keep_running:
             current_user["ws"].close()
+        requests.post(f"{SERVER_URL}/disconnect", headers={"Authorization": current_user["token"]}).json()
 
     def show_change_time_dialog(self):
         change_time_dialog = ChangeTimeDialog(self.winmine)

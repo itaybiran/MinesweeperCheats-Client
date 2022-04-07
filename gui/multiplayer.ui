@@ -1008,6 +1008,9 @@ color: white;</string>
     <property name="text">
      <string>send</string>
     </property>
+    <property name="shortcut">
+     <string>Return</string>
+    </property>
    </widget>
    <widget class="QListWidget" name="MessagesTable">
     <property name="geometry">

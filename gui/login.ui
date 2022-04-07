@@ -134,6 +134,9 @@ color: white;
    <property name="text">
     <string>login</string>
    </property>
+   <property name="shortcut">
+    <string>Return</string>
+   </property>
   </widget>
   <widget class="QPushButton" name="NewUserButton">
    <property name="geometry">
