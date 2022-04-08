@@ -62,7 +62,7 @@ color: white;</string>
   <widget class="QLabel" name="TitleLabel">
    <property name="geometry">
     <rect>
-     <x>290</x>
+     <x>288</x>
      <y>90</y>
      <width>120</width>
      <height>60</height>
@@ -70,7 +70,10 @@ color: white;</string>
    </property>
    <property name="font">
     <font>
+     <family>Segoe UI Black</family>
      <pointsize>28</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
     </font>
    </property>
    <property name="layoutDirection">
@@ -119,17 +122,27 @@ color:rgb(255, 82, 82)
    </property>
    <property name="font">
     <font>
+     <family>Segoe UI Black</family>
      <pointsize>10</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
     </font>
    </property>
    <property name="cursor">
     <cursorShape>ClosedHandCursor</cursorShape>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:rgba(236, 158, 255, 150);
+    <string notr="true">QPushButton::hover
+{
+background-color:rgb(216, 140, 234);
+}
+
+QPushButton
+{
+background-color:rgba(236, 158, 255, 170);
 border-radius:3px;
 color: white;
-</string>
+};</string>
    </property>
    <property name="text">
     <string>login</string>

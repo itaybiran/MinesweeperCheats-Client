@@ -488,9 +488,17 @@
      <cursorShape>ClosedHandCursor</cursorShape>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color:rgba(236, 158, 255, 170);
+     <string notr="true">QPushButton::hover
+{
+background-color:rgb(216, 140, 234);
+}
+
+QPushButton
+{
+background-color:rgba(236, 158, 255, 170);
 border-radius:7px;
-color: white;</string>
+color: white;
+};</string>
     </property>
     <property name="text">
      <string>Connect</string>
@@ -1001,9 +1009,17 @@ color: white;</string>
      <cursorShape>ClosedHandCursor</cursorShape>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color:rgba(236, 158, 255, 170);
-border-radius:3px;
-color: white;</string>
+     <string notr="true">QPushButton::hover
+{
+background-color:rgb(216, 140, 234);
+}
+
+QPushButton
+{
+background-color:rgba(236, 158, 255, 170);
+border-radius:7px;
+color: white;
+};</string>
     </property>
     <property name="text">
      <string>send</string>

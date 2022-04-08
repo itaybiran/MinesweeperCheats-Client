@@ -1,15 +1,18 @@
+import asyncio
 import threading
+import time
 
 import requests
 import websocket
 from IPython.core.release import url
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QDialog, QListWidgetItem, QTableWidgetItem, QTableWidget
+from PyQt5.QtWidgets import QDialog, QListWidgetItem, QTableWidgetItem, QTableWidget, QListWidget, QPushButton
 from PyQt5.uic import loadUi
 
-from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX
-from utils import user_connection_manager, process_manager
+import utils.board
+from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX, WINMINE_INDEX
+from utils import user_connection_manager, process_manager, board
 from utils.board import calculate_board, add_button
 from utils.user import User, set_user
 from utils.winmine_exe import WinmineExe
@@ -86,12 +89,21 @@ class MultiplayerScreen(QDialog):
         self.NameLabel.setText(self.__user.nickname)
 
     def update(self) -> None:
+        if self.__winmine.get_pid() == 0:
+            self.ErrorLabel.setText("Cannot use multiplayer until a process is attached")
+            self.set_buttons_status(True)
+        else:
+            self.ErrorLabel.setText("")
+            self.set_buttons_status(False)
         self.NameLabel.setText(self.__user.nickname)
         self.ConnectButton.setText("Connect")
         self.ConnectingLabel.setText("")
         self.OpponentNameLabel.setText("")
         self.MessagesTable.clear()
         self.__messages = []
+
+    def set_buttons_status(self, is_disabled):
+        self.ConnectButton.setDisabled(is_disabled)
 
     def __send_message(self):
         if self.__user.ws != "" and self.__user.ws.keep_running:
@@ -148,10 +160,22 @@ class CheatsScreen(QDialog):
         self.ActiveTimerButton.setChecked(True)
 
     def update(self) -> None:
+        if self.__winmine.get_pid() == 0:
+            self.ErrorLabel.setText("Cannot use cheats until a process is attached")
+            self.set_buttons_status(True)
+        else:
+            self.ErrorLabel.setText("")
+            self.set_buttons_status(False)
         user_connection_manager.disconnect(self.__user)
         self.NameLabel.setText(self.__user.nickname)
         self.RankLabel.setText("Rank: " + str(self.__user.rank))
         self.XpLabel.setText("Xp: " + str(self.__user.xp))
+
+    def set_buttons_status(self, is_disabled):
+        self.ChangeTimeButton.setDisabled(is_disabled)
+        self.InitializeTimerButton.setDisabled(is_disabled)
+        self.ActiveTimerButton.setDisabled(is_disabled)
+        self.RevealBoardButton.setDisabled(is_disabled)
 
     def __show_change_time_dialog(self):
         change_time_dialog = ChangeTimeDialog(self.__winmine)
@@ -216,9 +240,16 @@ class AttachToProcessScreen(QDialog):
         loadUi("gui/attach_to_process.ui", self)
         self.CheatsButton.clicked.connect(window.show_cheats_screen)
         self.MultiplayerButton.clicked.connect(window.show_multiplayer_screen)
-        self.ProcessList.itemDoubleClicked.connect(self.attach_to_process)
+        self.ProcessList.itemDoubleClicked.connect(self.__attach_to_process)
+        self.RefreshButton.clicked.connect(self.update)
+
+    def __create_boards_img_in_background(self):
+        for index in range(self.ProcessList.count()):
+            winmine = self.ProcessList.item(index).data(WINMINE_INDEX)
+            threading.Thread(target=board.create_board, args=[winmine.get_board(), f"./img/boards/{winmine.get_pid()}.png"]).start()
 
     def update(self) -> None:
+        self.__create_boards_img_in_background()
         user_connection_manager.disconnect(self.__user)
         self.NameLabel.setText(self.__user.nickname)
         process_manager.update_pids_file()
@@ -232,12 +263,14 @@ class AttachToProcessScreen(QDialog):
             item = QListWidgetItem(repr(self.__winmine))
             item.setData(PID_INDEX, self.__winmine.get_pid())
             item.setIcon(QIcon("img/bomb-icon.png"))
-            item.setData(3, '<img src="img/bomb-icon.png" width="512"/>')
+            item.setData(3, f'<img src="img/boards/{item.data(PID_INDEX)}.png" size="{self.__winmine.get_board_size()[1]*8}" height="{self.__winmine.get_board_size()[0]*8}"/>')
+            item.setData(WINMINE_INDEX, self.__winmine)
             self.ProcessList.addItem(item)
         for winmine in winmines:
             item = QListWidgetItem(repr(winmine))
             item.setData(PID_INDEX, winmine.get_pid())
-            item.setData(3, '<img src="img/bomb-icon.png" width="512"/>')
+            item.setData(3, f'<img src="img/boards/{item.data(PID_INDEX)}.png" width="{winmine.get_board_size()[1]*8}" height="{winmine.get_board_size()[0]*8}"/>')
+            item.setData(WINMINE_INDEX, winmine)
             self.ProcessList.addItem(item)
 
     def __attach_to_process(self, item):

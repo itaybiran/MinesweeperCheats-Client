@@ -4,7 +4,7 @@ from winreg import REG_DWORD, REG_SZ
 WIDTH = 700
 HEIGHT = 400
 PID_INDEX = 9
-
+WINMINE_INDEX = 5
 
 # winmine consts
 

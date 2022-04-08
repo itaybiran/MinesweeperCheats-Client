@@ -1,5 +1,29 @@
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QPushButton
+from PIL import Image
+
+from utils.winmine_exe import WinmineExe
+
+SQUARE_SIZE = 640
+SYMBOL_TO_IMG_PATH = {
+    "EMPTY_SQUARE": "./img/empty.png",
+    "ONE": "./img/one.png",
+    "TWO": "./img/two.png",
+    "THREE": "./img/three.png",
+    "FOUR": "./img/four.png",
+    "FIVE": "./img/five.png",
+    "SIX": "./img/six.png",
+    "SEVEN": "./img/seven.png",
+    "EIGHT": "./img/eight.png",
+    "BOMB": "./img/bomb.png",
+    "BOMB_YOU_TOUCHED": "./img/bomb.png",
+    "BOMB_WITH_X": "./img/bomb.png",
+    "HIDDEN_BOMB": "./img/button.png",
+    "SAFE_PLACE": "./img/button.png",
+    "RIGHT_FLAG": "./img/flag.png",
+    "WRONG_FLAG": "./img/flag.png",
+    "QUESTION_MARK": "./img/question_mark"
+}
 
 NUMBER_TO_ICON = {
     "0": "./img/empty.png",
@@ -46,7 +70,7 @@ def inc_around_bomb(revealed_board, row, column):
                 if revealed_board[i][j] != "bomb" and j >= 0 and i >= 0:
                     revealed_board[i][j] += 1
             except IndexError:
-               pass
+                pass
 
 
 def init_board(board: list):
@@ -57,3 +81,25 @@ def init_board(board: list):
         revealed_board.append([])
     revealed_board.pop()
     return revealed_board
+
+
+def init_board_img(width, height):
+    board_img = Image.new('RGB', (width, height), (250, 250, 250))
+    return board_img
+
+
+def add_square(board_img, square_img_path, x, y):
+    img = Image.open(square_img_path)
+    board_img.paste(img, (x, y))
+
+
+def create_board(matrix_board, path_to_save=""):
+    board_img = init_board_img(SQUARE_SIZE * len(matrix_board[0]), SQUARE_SIZE * len(matrix_board))
+    for row in range(len(matrix_board)):
+        for column in range(len(matrix_board[row])):
+            add_square(board_img, SYMBOL_TO_IMG_PATH[str(matrix_board[row][column])], column * SQUARE_SIZE,
+                       row * SQUARE_SIZE)
+    if path_to_save != "":
+        board_img.save(path_to_save, "PNG")
+    return board_img
+

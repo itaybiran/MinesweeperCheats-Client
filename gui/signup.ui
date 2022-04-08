@@ -59,15 +59,18 @@ color: white;</string>
   <widget class="QLabel" name="TitleLabel">
    <property name="geometry">
     <rect>
-     <x>284</x>
+     <x>273</x>
      <y>80</y>
-     <width>131</width>
+     <width>151</width>
      <height>60</height>
     </rect>
    </property>
    <property name="font">
     <font>
+     <family>Segoe UI Black</family>
      <pointsize>28</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
     </font>
    </property>
    <property name="layoutDirection">
@@ -116,17 +119,27 @@ color:rgb(255, 82, 82)
    </property>
    <property name="font">
     <font>
+     <family>Segoe UI Black</family>
      <pointsize>10</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
     </font>
    </property>
    <property name="cursor">
     <cursorShape>ClosedHandCursor</cursorShape>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:rgba(236, 158, 255, 150);
+    <string notr="true">QPushButton::hover
+{
+background-color:rgb(216, 140, 234);
+}
+
+QPushButton
+{
+background-color:rgba(236, 158, 255, 170);
 border-radius:3px;
 color: white;
-</string>
+};</string>
    </property>
    <property name="text">
     <string>register</string>
@@ -139,7 +152,7 @@ color: white;
    <property name="geometry">
     <rect>
      <x>285</x>
-     <y>290</y>
+     <y>289</y>
      <width>131</width>
      <height>20</height>
     </rect>

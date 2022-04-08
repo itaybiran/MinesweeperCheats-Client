@@ -28,7 +28,7 @@
    <widget class="QPushButton" name="InitializeTimerButton">
     <property name="geometry">
      <rect>
-      <x>192</x>
+      <x>200</x>
       <y>110</y>
       <width>131</width>
       <height>61</height>
@@ -488,10 +488,17 @@
      <cursorShape>ClosedHandCursor</cursorShape>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color:rgba(236, 158, 255, 170);
+     <string notr="true">QPushButton::hover
+{
+background-color:rgb(216, 140, 234);
+}
+
+QPushButton
+{
+background-color:rgba(236, 158, 255, 170);
 border-radius:7px;
 color: white;
-</string>
+};</string>
     </property>
     <property name="text">
      <string>Initialize Timer</string>
@@ -500,7 +507,7 @@ color: white;
    <widget class="QPushButton" name="ChangeTimeButton">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>360</x>
       <y>110</y>
       <width>131</width>
       <height>61</height>
@@ -960,9 +967,17 @@ color: white;
      <cursorShape>ClosedHandCursor</cursorShape>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color:rgba(236, 158, 255, 170);
+     <string notr="true">QPushButton::hover
+{
+background-color:rgb(216, 140, 234);
+}
+
+QPushButton
+{
+background-color:rgba(236, 158, 255, 170);
 border-radius:7px;
-color: white;</string>
+color: white;
+};</string>
     </property>
     <property name="text">
      <string>Change Time</string>
@@ -971,7 +986,7 @@ color: white;</string>
    <widget class="QPushButton" name="ChangeBestTimes">
     <property name="geometry">
      <rect>
-      <x>510</x>
+      <x>520</x>
       <y>200</y>
       <width>131</width>
       <height>61</height>
@@ -1431,9 +1446,17 @@ color: white;</string>
      <cursorShape>ClosedHandCursor</cursorShape>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color:rgba(236, 158, 255, 170);
+     <string notr="true">QPushButton::hover
+{
+background-color:rgb(216, 140, 234);
+}
+
+QPushButton
+{
+background-color:rgba(236, 158, 255, 170);
 border-radius:7px;
-color: white;</string>
+color: white;
+};</string>
     </property>
     <property name="text">
      <string>Change Best Times</string>
@@ -1442,7 +1465,7 @@ color: white;</string>
    <widget class="QRadioButton" name="ActiveTimerButton">
     <property name="geometry">
      <rect>
-      <x>536</x>
+      <x>541</x>
       <y>131</y>
       <width>95</width>
       <height>20</height>
@@ -1469,7 +1492,7 @@ background:rgba(0,0,0,0);</string>
    <widget class="QPushButton" name="RevealBoardButton">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>360</x>
       <y>200</y>
       <width>131</width>
       <height>61</height>
@@ -1929,10 +1952,17 @@ background:rgba(0,0,0,0);</string>
      <cursorShape>ClosedHandCursor</cursorShape>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color:rgba(236, 158, 255, 170);
+     <string notr="true">QPushButton::hover
+{
+background-color:rgb(216, 140, 234);
+}
+
+QPushButton
+{
+background-color:rgba(236, 158, 255, 170);
 border-radius:7px;
 color: white;
-
+};
 </string>
     </property>
     <property name="text">
@@ -1942,7 +1972,7 @@ color: white;
    <widget class="QPushButton" name="ChangeBoardButton">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>200</x>
       <y>200</y>
       <width>131</width>
       <height>61</height>
@@ -2402,9 +2432,17 @@ color: white;
      <cursorShape>ClosedHandCursor</cursorShape>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color:rgba(236, 158, 255, 170);
+     <string notr="true">QPushButton::hover
+{
+background-color:rgb(216, 140, 234);
+}
+
+QPushButton
+{
+background-color:rgba(236, 158, 255, 170);
 border-radius:7px;
-color: white;</string>
+color: white;
+};</string>
     </property>
     <property name="text">
      <string>Change Board</string>
@@ -3923,6 +3961,32 @@ QPushButton
     </property>
     <property name="text">
      <string>Attach To Process</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ErrorLabel">
+    <property name="geometry">
+     <rect>
+      <x>283</x>
+      <y>291</y>
+      <width>271</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:rgba(0,0,0,0);
+color:rgb(255, 82, 82)
+</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>
