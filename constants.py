@@ -49,7 +49,9 @@ VALUE_TO_SYMBOL = {0x8E: "RIGHT_FLAG",
                    0x46: "SIX",
                    0x47: "SEVEN",
                    0x48: "EIGHT",
-                   0x10: "BOUNDARY"
+                   0x10: "BOUNDARY",
+                   0x80: "EMPTY_SQUARE",
+                   0x00: "EMPTY_SQUARE"
                    }
 
 UNUSED_AREA = 0x0F

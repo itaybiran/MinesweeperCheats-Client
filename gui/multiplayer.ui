@@ -1038,9 +1038,30 @@ color: white;
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color:transparent;
+     <string notr="true">QListWidget
+{
+background-color:transparent;
 color:white;
-border:0</string>
+border:0;
+}
+QScrollBar:vertical
+ {              
+border: none;
+background-color:rgb(190, 106, 218);
+width:5px;
+margin: 0px 0px 0px 0px;
+ }
+QScrollBar::handle:vertical
+{
+background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+stop: 0  rgb(144, 80, 165), stop: 0.5   rgb(144, 80, 165), stop:1 rgb(144, 80, 165));
+min-height: 0px;
+ }
+
+</string>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAsNeeded</enum>
     </property>
    </widget>
    <widget class="QLabel" name="ConnectingLabel">

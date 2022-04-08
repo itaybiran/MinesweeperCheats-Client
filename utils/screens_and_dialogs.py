@@ -104,6 +104,7 @@ class MultiplayerScreen(QDialog):
 
     def set_buttons_status(self, is_disabled):
         self.ConnectButton.setDisabled(is_disabled)
+        self.SendButton.setDisabled(is_disabled)
 
     def __send_message(self):
         if self.__user.ws != "" and self.__user.ws.keep_running:

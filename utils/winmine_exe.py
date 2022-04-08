@@ -32,7 +32,6 @@ class WinmineExe(object):
     def get_board(self):
         """A function that returns a matrix represents the board."""
         board = [[]]
-        row, column = 0, 0
         height, width = self.get_board_size()
         for row in range(height):
             for column in range(width):

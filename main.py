@@ -1,4 +1,3 @@
-import sys
 
 from utils.program import Program
 
