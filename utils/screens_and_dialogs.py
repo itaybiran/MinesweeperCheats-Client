@@ -243,13 +243,22 @@ class AttachToProcessScreen(QDialog):
         self.ProcessList.itemDoubleClicked.connect(self.__attach_to_process)
         self.RefreshButton.clicked.connect(self.update)
 
-    def __create_boards_img_in_background(self):
+    def create_boards_img_in_background(self):
+        thread_list = []
         for index in range(self.ProcessList.count()):
             winmine = self.ProcessList.item(index).data(WINMINE_INDEX)
-            threading.Thread(target=board.create_board, args=[winmine.get_board(), f"./img/boards/{winmine.get_pid()}.png"]).start()
+            thread_list.append(threading.Thread(target=board.create_board, args=[winmine.get_board(), f"./img/boards/{winmine.get_pid()}.png"]))
+        for thread in thread_list:
+            thread.start()
+        for thread in thread_list:
+            thread.join()
+
+    def update_boards_img_loop(self):
+        while True:
+            self.create_boards_img_in_background()
+            time.sleep(3)
 
     def update(self) -> None:
-        self.__create_boards_img_in_background()
         user_connection_manager.disconnect(self.__user)
         self.NameLabel.setText(self.__user.nickname)
         process_manager.update_pids_file()

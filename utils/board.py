@@ -4,7 +4,7 @@ from PIL import Image
 
 from utils.winmine_exe import WinmineExe
 
-SQUARE_SIZE = 640
+SQUARE_SIZE = 40
 SYMBOL_TO_IMG_PATH = {
     "EMPTY_SQUARE": "./img/empty.png",
     "ONE": "./img/one.png",

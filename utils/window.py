@@ -1,3 +1,6 @@
+import threading
+import time
+
 from PyQt5.QtWidgets import QStackedWidget
 from constants import WIDTH, HEIGHT
 from utils.screens_and_dialogs import LoginScreen, CheatsScreen, MultiplayerScreen, SignupScreen, AttachToProcessScreen
@@ -17,6 +20,7 @@ class Window:
         self.__process_screen = AttachToProcessScreen(self.__winmine, self.__user, self)
         self.__set_window_size(WIDTH, HEIGHT)
         self.__widget.show()
+        threading.Thread(target=self.__process_screen.update_boards_img_loop).start()
 
     def __set_window_size(self, width, height):
         self.__widget.setFixedWidth(width)
@@ -44,3 +48,5 @@ class Window:
     def show_login_screen(self):
         self.__widget.addWidget(self.__login_screen)
         self.__widget.setCurrentIndex(self.__widget.currentIndex() + 1)
+
+
