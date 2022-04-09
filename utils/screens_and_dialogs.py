@@ -1,4 +1,5 @@
 import asyncio
+import json
 import threading
 import time
 
@@ -14,6 +15,7 @@ import utils.board
 from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX, WINMINE_INDEX
 from utils import user_connection_manager, process_manager, board
 from utils.board import calculate_board, add_button
+from utils.message import Message, MessageTypeEnum
 from utils.user import User, set_user
 from utils.winmine_exe import WinmineExe
 
@@ -100,17 +102,30 @@ class MultiplayerScreen(QDialog):
         self.ConnectingLabel.setText("")
         self.OpponentNameLabel.setText("")
         self.MessagesTable.clear()
-        self.__messages = []
 
     def set_buttons_status(self, is_disabled):
-        self.ConnectButton.setDisabled(is_disabled)
-        self.SendButton.setDisabled(is_disabled)
+        # self.ConnectButton.setDisabled(is_disabled)
+        # self.SendButton.setDisabled(is_disabled)
+        pass
+
+    def handle_received_message(self, message: Message):
+        message = json.loads(json.loads(message))
+        if message["type"] == MessageTypeEnum.chat_message:
+            item = QListWidgetItem(message["data"])
+            item.setTextAlignment(Qt.AlignRight)
+            self.MessagesTable.addItem(item)
+            self.MessagesTable.scrollToBottom()
+        elif message["type"] == MessageTypeEnum.opponent_data:
+            self.OpponentNameLabel.setText(message["data"]["nickname"])
+
+    def __send_message_with_protocol(self, data: str, type: str):
+        self.__user.ws.send(json.dumps({"data": data, "type": type}))
 
     def __send_message(self):
         if self.__user.ws != "" and self.__user.ws.keep_running:
             message = self.ChatField.text()
             if message != "":
-                self.__user.ws.send(message)
+                self.__send_message_with_protocol(message, "chat_message")
                 self.ChatField.setText("")
                 item = QListWidgetItem(message)
                 item.setTextAlignment(Qt.AlignLeft)
@@ -120,16 +135,7 @@ class MultiplayerScreen(QDialog):
             self.ErrorLabel.setText("find an opponent first")
 
     def __on_message(self, ws, message):
-        self.__messages.append(message)
-        if len(self.__messages) > 1:
-            item = QListWidgetItem(message)
-            item.setTextAlignment(Qt.AlignRight)
-            self.MessagesTable.addItem(item)
-            self.MessagesTable.scrollToBottom()
-        else:
-            self.ConnectingLabel.setText("")
-            self.OpponentNameLabel.setText(message)
-            self.MessagesTable.clear()
+        self.handle_received_message(message)
 
     def __connect(self):
         if self.__user.ws == "" or not self.__user.ws.keep_running:
@@ -177,6 +183,8 @@ class CheatsScreen(QDialog):
         self.InitializeTimerButton.setDisabled(is_disabled)
         self.ActiveTimerButton.setDisabled(is_disabled)
         self.RevealBoardButton.setDisabled(is_disabled)
+        self.ChangeBoardButton.setDisabled(is_disabled)
+        self.ChangeBestTimesButton.setDisabled(is_disabled)
 
     def __show_change_time_dialog(self):
         change_time_dialog = ChangeTimeDialog(self.__winmine)

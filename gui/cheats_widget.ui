@@ -983,7 +983,7 @@ color: white;
      <string>Change Time</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="ChangeBestTimes">
+   <widget class="QPushButton" name="ChangeBestTimesButton">
     <property name="geometry">
      <rect>
       <x>520</x>

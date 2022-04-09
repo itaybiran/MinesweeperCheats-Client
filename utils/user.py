@@ -1,6 +1,4 @@
 import requests
-import websocket
-from pydantic import BaseModel
 from constants import *
 
 

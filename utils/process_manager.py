@@ -106,7 +106,6 @@ def update_pids_file():
     for pid in running_processes:
         if not does_exist(pid):
             add_pid_to_file(pid)
-            print("aaaa")
     pids_in_file = get_all_pids_in_file()
     for pid in pids_in_file:
         if int(pid) not in running_processes:
