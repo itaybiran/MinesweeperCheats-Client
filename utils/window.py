@@ -48,5 +48,3 @@ class Window:
     def show_login_screen(self):
         self.__widget.addWidget(self.__login_screen)
         self.__widget.setCurrentIndex(self.__widget.currentIndex() + 1)
-
-

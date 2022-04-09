@@ -1,5 +1,6 @@
 import asyncio
 import json
+import sys
 import threading
 import time
 
@@ -162,6 +163,7 @@ class CheatsScreen(QDialog):
         self.InitializeTimerButton.clicked.connect(self.__initialize_timer_button)
         self.ActiveTimerButton.toggled.connect(self.__active_timer_button)
         self.RevealBoardButton.clicked.connect(self.__show_reveal_board_dialog)
+        self.ChangeBestTimesButton.clicked.connect(self.__show_change_best_times_dialog)
         self.MultiplayerButton.clicked.connect(window.show_multiplayer_screen)
         self.ProcessButton.clicked.connect(window.show_process_screen)
         self.ActiveTimerButton.setChecked(True)
@@ -193,6 +195,10 @@ class CheatsScreen(QDialog):
     def __show_reveal_board_dialog(self):
         reveal_board_dialog = RevealBoardDialog(self.__winmine)
         reveal_board_dialog.exec()
+
+    def __show_change_best_times_dialog(self):
+        change_best_times_dialog = ChangeBestTimesDialog(self.__winmine)
+        change_best_times_dialog.exec()
 
     def __initialize_timer_button(self):
         self.__winmine.change_timer(INITIALIZE_TIME)
@@ -241,6 +247,13 @@ class RevealBoardDialog(QDialog):
         self.setFixedWidth(x + 16)
 
 
+class ChangeBestTimesDialog(QDialog):
+    def __init__(self, winmine: WinmineExe):
+        super(ChangeBestTimesDialog, self).__init__()
+        self.__winmine = winmine
+        loadUi("gui/change_best_times_dialog.ui", self)
+
+
 class AttachToProcessScreen(QDialog):
     def __init__(self, winmine: WinmineExe, user: User, window):
         super(AttachToProcessScreen, self).__init__()
@@ -252,19 +265,25 @@ class AttachToProcessScreen(QDialog):
         self.ProcessList.itemDoubleClicked.connect(self.__attach_to_process)
         self.RefreshButton.clicked.connect(self.update)
 
-    def create_boards_img_in_background(self):
+    def __create_boards_img_in_background(self):
         thread_list = []
-        for index in range(self.ProcessList.count()):
-            winmine = self.ProcessList.item(index).data(WINMINE_INDEX)
-            thread_list.append(threading.Thread(target=board.create_board, args=[winmine.get_board(), f"./img/boards/{winmine.get_pid()}.png"]))
-        for thread in thread_list:
-            thread.start()
-        for thread in thread_list:
-            thread.join()
+        try:
+            for index in range(self.ProcessList.count()):
+                winmine = self.ProcessList.item(index).data(WINMINE_INDEX)
+                thread_list.append(threading.Thread(target=board.create_board, args=[winmine.get_board(), f"./img/boards/{winmine.get_pid()}.png"]))
+            for thread in thread_list:
+                thread.start()
+            for thread in thread_list:
+                thread.join()
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
     def update_boards_img_loop(self):
-        while True:
-            self.create_boards_img_in_background()
+        flag = self.__create_boards_img_in_background()
+        while flag: #add func of is running for window
+            flag = self.__create_boards_img_in_background()
             time.sleep(3)
 
     def update(self) -> None:
