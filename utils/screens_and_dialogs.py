@@ -17,7 +17,10 @@ from PyQt5.uic import loadUi
 
 import utils.board
 from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX, WINMINE_INDEX, SQUARE_SIZE, \
-    REVEAL_BOARD_STARTING_X_POSITION, REVEAL_BOARD_STARTING_Y_POSITION
+    REVEAL_BOARD_STARTING_X_POSITION, REVEAL_BOARD_STARTING_Y_POSITION, CHANGE_BOARD_UPPER_BUTTONS_AREA_HEIGHT, \
+    CHANGE_BOARD_LOWER_BUTTONS_AREA_HEIGHT, CHANGE_BOARD_MIN_WIDTH, CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW, \
+    CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_BUTTONS, CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_BUTTONS, \
+    CHANGE_BOARD_DISTANCE_BETWEEN_WIDTH_AND_HEIGHT_FIELDS
 from utils import user_connection_manager, process_manager, board
 from utils.board import calculate_board, add_button
 from utils.message import Message, MessageTypeEnum
@@ -289,11 +292,16 @@ class ChangeBoardDialog(QDialog):
         width = int(self.WidthField.text())
         self.__init_board(height)
         self.setFixedHeight(CHANGE_BOARD_UPPER_BUTTONS_AREA_HEIGHT + height * SQUARE_SIZE + CHANGE_BOARD_LOWER_BUTTONS_AREA_HEIGHT)
-        self.setFixedWidth(width * SQUARE_SIZE + CHANGE_BOARD_MIN_WIDTH)
         self.ChangeBoardWidget.setFixedHeight(CHANGE_BOARD_UPPER_BUTTONS_AREA_HEIGHT + height * SQUARE_SIZE + CHANGE_BOARD_LOWER_BUTTONS_AREA_HEIGHT)
-        self.ChangeBoardWidget.setFixedWidth(width * SQUARE_SIZE + CHANGE_BOARD_MIN_WIDTH)
+        if width * SQUARE_SIZE < CHANGE_BOARD_MIN_WIDTH:
+            self.setFixedWidth(CHANGE_BOARD_MIN_WIDTH)
+            self.ChangeBoardWidget.setFixedWidth(CHANGE_BOARD_MIN_WIDTH)
+        else:
+
+            self.setFixedWidth(width * SQUARE_SIZE + CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW)
+            self.ChangeBoardWidget.setFixedWidth(width * SQUARE_SIZE + CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW)
         x = int(self.width() / 2 - width * SQUARE_SIZE / 2)
-        y = int(CHANGE_BOARD_UPPER_BUTTONS_AREA_HEIGHT + CHANGE_BOARD_DISTANCE_BOARD_FROM_UPPER_BUTTONS)
+        y = int(CHANGE_BOARD_UPPER_BUTTONS_AREA_HEIGHT + CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_BUTTONS)
         for row in range(height):
             x = int(self.geometry().width() / 2 - width * SQUARE_SIZE / 2)
             for column in range(width):
@@ -302,7 +310,7 @@ class ChangeBoardDialog(QDialog):
                 self.new_board[row].append(custom_button)
                 x += SQUARE_SIZE
             y += SQUARE_SIZE
-        self.ConfirmButton.move(int(self.width() / 2 - self.ConfirmButton.width() / 2), y + CHANGE_BOARD_DISTANCE_BOARD_FROM_LOWER_BUTTONS)
+        self.ConfirmButton.move(int(self.width() / 2 - self.ConfirmButton.width() / 2), y + CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_BUTTONS)
         self.Title.move(int(self.width() / 2 - self.Title.width() / 2), self.Title.pos().y())
         self.WidthField.move(int(self.width() / 2 - self.WidthField.width() - CHANGE_BOARD_DISTANCE_BETWEEN_WIDTH_AND_HEIGHT_FIELDS / 2), self.WidthField.pos().y())
         self.HeightField.move(int(self.width() / 2 + CHANGE_BOARD_DISTANCE_BETWEEN_WIDTH_AND_HEIGHT_FIELDS / 2), self.HeightField.pos().y())
