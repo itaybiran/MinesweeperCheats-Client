@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ChangeTimeDialog</class>
+ <widget class="QDialog" name="ChangeTimeDialog">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>251</width>
+    <height>161</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <property name="windowOpacity">
+   <double>1.000000000000000</double>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="ChangeTimeWidget" native="true">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>251</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background:qlineargradient(spread:pad, x1:1, y1:0, x2:0, y2:1, stop:0 rgba(45, 45, 45, 255), stop:1 rgba(113, 113, 113, 255))</string>
+   </property>
+   <widget class="QLineEdit" name="NameTextField">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>30</y>
+      <width>100</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:rgba(236, 158, 255, 100);
+border-radius:3px;
+color:white;</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string> Name...</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="OkButton">
+    <property name="geometry">
+     <rect>
+      <x>74</x>
+      <y>117</y>
+      <width>101</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Black</family>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>ClosedHandCursor</cursorShape>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton::hover
+{
+background-color:rgb(216, 140, 234);
+}
+
+QPushButton
+{
+background-color:rgba(236, 158, 255, 170);
+border-radius:3px;
+color: white;
+};</string>
+    </property>
+    <property name="text">
+     <string>OK</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ErrorLabel">
+    <property name="geometry">
+     <rect>
+      <x>75</x>
+      <y>103</y>
+      <width>100</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:rgba(0,0,0,0);
+color:rgb(255, 82, 82)</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="DifficultyBox">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>30</y>
+      <width>100</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:rgb(100, 100, 100);
+color:rgba(236, 158, 255, 250);
+border:1px;
+border-radius:3px;</string>
+    </property>
+    <item>
+     <property name="text">
+      <string>Easy</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Intermediate</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Expert</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QSlider" name="TimeSlider">
+    <property name="geometry">
+     <rect>
+      <x>43</x>
+      <y>70</y>
+      <width>161</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QSlider:horizontal
+{
+background-color:transparent;
+}
+
+QSlider:handle:horizontal
+{
+background-color:rgb(216, 140, 234);
+border-radius:5px;
+}
+
+QSlider:handle:horizontal::hover
+{
+background-color:rgba(236, 158, 255);
+}</string>
+    </property>
+    <property name="maximum">
+     <number>999</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="DisplayTimeLabel">
+    <property name="geometry">
+     <rect>
+      <x>99</x>
+      <y>86</y>
+      <width>50</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:transparent;
+color:white;</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

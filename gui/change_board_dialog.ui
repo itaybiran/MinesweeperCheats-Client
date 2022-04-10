@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ChangeBoardDialog</class>
+ <widget class="QDialog" name="ChangeBoardDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>341</width>
+    <height>360</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QWidget" name="ChangeBoardWidget" native="true">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>341</width>
+     <height>361</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background:qlineargradient(spread:pad, x1:1, y1:0, x2:0, y2:1, stop:0 rgba(45, 45, 45, 255), stop:1 rgba(113, 113, 113, 255))</string>
+   </property>
+   <widget class="QLabel" name="ErrorLabel">
+    <property name="geometry">
+     <rect>
+      <x>93</x>
+      <y>88</y>
+      <width>150</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:rgba(0,0,0,0);
+color:rgb(255, 82, 82)</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Title">
+    <property name="geometry">
+     <rect>
+      <x>99</x>
+      <y>20</y>
+      <width>141</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Black</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:transparent;
+color:white;</string>
+    </property>
+    <property name="text">
+     <string>Insert new size</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="WidthField">
+    <property name="geometry">
+     <rect>
+      <x>47</x>
+      <y>66</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:rgba(236, 158, 255, 100);
+border-radius:3px;
+color:white;
+</string>
+    </property>
+    <property name="dragEnabled">
+     <bool>false</bool>
+    </property>
+    <property name="placeholderText">
+     <string> width...</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="HeightField">
+    <property name="geometry">
+     <rect>
+      <x>179</x>
+      <y>66</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:rgba(236, 158, 255, 100);
+border-radius:3px;
+color:white;
+</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="dragEnabled">
+     <bool>false</bool>
+    </property>
+    <property name="placeholderText">
+     <string> height...</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="OkButton">
+    <property name="geometry">
+     <rect>
+      <x>129</x>
+      <y>106</y>
+      <width>80</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Black</family>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>ClosedHandCursor</cursorShape>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton::hover
+{
+background-color:rgb(216, 140, 234);
+}
+
+QPushButton
+{
+background-color:rgba(236, 158, 255, 170);
+border-radius:3px;
+color: white;
+};</string>
+    </property>
+    <property name="text">
+     <string>ok</string>
+    </property>
+    <property name="shortcut">
+     <string>Return</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ConfirmButton">
+    <property name="geometry">
+     <rect>
+      <x>94</x>
+      <y>320</y>
+      <width>151</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Black</family>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>ClosedHandCursor</cursorShape>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton::hover
+{
+background-color:rgb(216, 140, 234);
+}
+
+QPushButton
+{
+background-color:rgba(236, 158, 255, 170);
+border-radius:3px;
+color: white;
+};</string>
+    </property>
+    <property name="text">
+     <string>confirm</string>
+    </property>
+    <property name="shortcut">
+     <string>Return</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
