@@ -9,7 +9,8 @@ import websocket
 from IPython.core.release import url
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QDialog, QListWidgetItem, QTableWidgetItem, QTableWidget, QListWidget, QPushButton
+from PyQt5.QtWidgets import QDialog, QListWidgetItem, QTableWidgetItem, QTableWidget, QListWidget, QPushButton, QSlider, \
+    QLabel
 from PyQt5.uic import loadUi
 
 import utils.board
@@ -252,6 +253,13 @@ class ChangeBestTimesDialog(QDialog):
         super(ChangeBestTimesDialog, self).__init__()
         self.__winmine = winmine
         loadUi("gui/change_best_times_dialog.ui", self)
+        self.TimeSlider.setValue(0)
+        self.__value_change()
+        self.TimeSlider.valueChanged.connect(self.__value_change)
+
+    def __value_change(self):
+        txt = str(self.TimeSlider.value())
+        self.DisplayTimeLabel.setText(txt)
 
 
 class AttachToProcessScreen(QDialog):
