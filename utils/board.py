@@ -2,6 +2,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QPushButton
 from PIL import Image
 
+from utils.button import CustomButton
 from utils.winmine_exe import WinmineExe
 
 SQUARE_SIZE = 40
@@ -40,13 +41,13 @@ NUMBER_TO_ICON = {
 }
 
 
-def add_button(parent, type, x, y):
-    button = QPushButton("", parent)
+def add_button(parent, type_of_square, x, y):
+    button = CustomButton("", parent)
     button.setVisible(True)
     button.move(x, y)
     button.setFixedHeight(24)
     button.setFixedWidth(24)
-    button.setIcon(QIcon(NUMBER_TO_ICON[str(type)]))
+    button.setIcon(QIcon(NUMBER_TO_ICON[str(type_of_square)]))
     button.setStyleSheet(
         "background-color:transparent;"
     )

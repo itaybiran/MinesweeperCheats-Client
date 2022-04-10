@@ -4,7 +4,7 @@ import time
 from winreg import *
 from constants import *
 from utils.memory import write_process_memory, read_process_memory
-# ConnectRegistry(None, HKEY_LOCAL_MACHINE)
+ConnectRegistry(None, HKEY_LOCAL_MACHINE)
 
 
 class WinmineExe(object):
@@ -86,8 +86,8 @@ class WinmineExe(object):
         SetValueEx(key_handle, key, 0, CONVERT_TYPE[str(type(new_value))], new_value)
 
     def change_best_time(self, difficulty, player_name, new_time):
-        self.write_to_winmine_registry("Time" + str(difficulty), new_time)
-        self.write_to_winmine_registry("Name" + str(difficulty), player_name[0: MAX_NAME_LENGTH])
+        self.write_to_winmine_registry("Time" + str(MODE_TO_NUMBER[difficulty] + 1), new_time)
+        self.write_to_winmine_registry("Name" + str(MODE_TO_NUMBER[difficulty] + 1), player_name[0: MAX_NAME_LENGTH])
 
     def get_mode(self):
         return read_process_memory(self.__pid, MODE_ADDRESS, 1)
@@ -122,13 +122,14 @@ class WinmineExe(object):
         write_process_memory(self.__pid, DISABLE_CLICK_FLAG_ADDRESS, 0, 1)
 
     def set_best_times(self, difficulty, name, score):
-        write_process_memory(self.__pid, BEST_TIMES_ADDRESS[difficulty], score, 2)
+        a = 0x010056D9
+        write_process_memory(self.__pid, BEST_TIMES_ADDRESS[MODE_TO_NUMBER[difficulty]], score, 2)
         for index in range(MAX_NAME_LENGTH):
             try:
-                write_process_memory(self.__pid, BEST_TIME_NAMES_ADDRESS[difficulty] + 2 * index, ord(name[index]), 1)
-            except Exception as e:
-                print(e)
-                write_process_memory(self.__pid, BEST_TIME_NAMES_ADDRESS[difficulty] + 2 * index, 0, 1)
+                write_process_memory(self.__pid,a + 2 * index, 0, 1)
+                write_process_memory(self.__pid, BEST_TIME_NAMES_ADDRESS[MODE_TO_NUMBER[difficulty]] + 2 * index, ord(name[index]), 1)
+            except IndexError:
+                write_process_memory(self.__pid, BEST_TIME_NAMES_ADDRESS[MODE_TO_NUMBER[difficulty]] + 2 * index, 0, 1)
 
     def __repr__(self):
         return f"Pid: {self.__pid}           Mode: {NUMBER_TO_MODE[str(self.get_mode())]}           Size: {self.get_board_size()[0]} on {self.get_board_size()[1]}           Number Of Bombs: {self.get_number_of_bombs()}"

@@ -3,18 +3,21 @@ import json
 import sys
 import threading
 import time
+from functools import partial
 
 import requests
 import websocket
 from IPython.core.release import url
+from IPython.external.qt_for_kernel import QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QDialog, QListWidgetItem, QTableWidgetItem, QTableWidget, QListWidget, QPushButton, QSlider, \
-    QLabel
+    QLabel, QComboBox
 from PyQt5.uic import loadUi
 
 import utils.board
-from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX, WINMINE_INDEX
+from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX, WINMINE_INDEX, SQUARE_SIZE, \
+    REVEAL_BOARD_STARTING_X_POSITION, REVEAL_BOARD_STARTING_Y_POSITION
 from utils import user_connection_manager, process_manager, board
 from utils.board import calculate_board, add_button
 from utils.message import Message, MessageTypeEnum
@@ -165,6 +168,7 @@ class CheatsScreen(QDialog):
         self.ActiveTimerButton.toggled.connect(self.__active_timer_button)
         self.RevealBoardButton.clicked.connect(self.__show_reveal_board_dialog)
         self.ChangeBestTimesButton.clicked.connect(self.__show_change_best_times_dialog)
+        self.ChangeBoardButton.clicked.connect(self.__show_change_board_dialog)
         self.MultiplayerButton.clicked.connect(window.show_multiplayer_screen)
         self.ProcessButton.clicked.connect(window.show_process_screen)
         self.ActiveTimerButton.setChecked(True)
@@ -182,12 +186,13 @@ class CheatsScreen(QDialog):
         self.XpLabel.setText("Xp: " + str(self.__user.xp))
 
     def set_buttons_status(self, is_disabled):
-        self.ChangeTimeButton.setDisabled(is_disabled)
-        self.InitializeTimerButton.setDisabled(is_disabled)
-        self.ActiveTimerButton.setDisabled(is_disabled)
-        self.RevealBoardButton.setDisabled(is_disabled)
-        self.ChangeBoardButton.setDisabled(is_disabled)
-        self.ChangeBestTimesButton.setDisabled(is_disabled)
+        # self.ChangeTimeButton.setDisabled(is_disabled)
+        # self.InitializeTimerButton.setDisabled(is_disabled)
+        # self.ActiveTimerButton.setDisabled(is_disabled)
+        # self.RevealBoardButton.setDisabled(is_disabled)
+        # self.ChangeBoardButton.setDisabled(is_disabled)
+        # self.ChangeBestTimesButton.setDisabled(is_disabled)
+        pass
 
     def __show_change_time_dialog(self):
         change_time_dialog = ChangeTimeDialog(self.__winmine)
@@ -200,6 +205,10 @@ class CheatsScreen(QDialog):
     def __show_change_best_times_dialog(self):
         change_best_times_dialog = ChangeBestTimesDialog(self.__winmine)
         change_best_times_dialog.exec()
+
+    def __show_change_board_dialog(self):
+        change_board_dialog = ChangeBoardDialog(self.__winmine)
+        change_board_dialog.exec()
 
     def __initialize_timer_button(self):
         self.__winmine.change_timer(INITIALIZE_TIME)
@@ -236,16 +245,69 @@ class RevealBoardDialog(QDialog):
 
     def __reveal_board(self):
         current_board = calculate_board(self.__winmine.get_board())
-        x = 10
-        y = 10
+        x = REVEAL_BOARD_STARTING_X_POSITION
+        y = REVEAL_BOARD_STARTING_Y_POSITION
         for row in range(len(current_board)):
-            x = 10
+            x = REVEAL_BOARD_STARTING_X_POSITION
             for column in range(len(current_board[row])):
                 add_button(self, current_board[row][column], x, y)
-                x += 16
-            y += 16
-        self.setFixedHeight(y + 16)
-        self.setFixedWidth(x + 16)
+                x += SQUARE_SIZE
+            y += SQUARE_SIZE
+        self.setFixedHeight(y + SQUARE_SIZE)
+        self.setFixedWidth(x + SQUARE_SIZE)
+
+
+class ChangeBoardDialog(QDialog):
+    def __init__(self, winmine: WinmineExe):
+        super(ChangeBoardDialog, self).__init__()
+        self.__winmine = winmine
+        self.new_board = []
+        loadUi("gui/change_board_dialog.ui", self)
+        self.HeightField.setText("9")
+        self.WidthField.setText("9")
+        self.__display_empty_board()
+        self.OkButton.clicked.connect(self.__display_empty_board)
+
+    def __init_board(self, height):
+        for i in range(height):
+            self.new_board.append([])
+
+    def __on_press(self, x, y):
+        custom_button = self.new_board[x][y]
+        if custom_button.get_status():
+            custom_button.setIcon(QIcon("img/button.png"))
+        else:
+            custom_button.setIcon(QIcon("img/bomb.png"))
+        custom_button.change_status()
+
+    def __display_empty_board(self):
+        for row in range(len(self.new_board)):
+            for column in range(len(self.new_board[0])):
+                self.new_board[row][column].hide()
+        self.new_board = []
+        height = int(self.HeightField.text())
+        width = int(self.WidthField.text())
+        self.__init_board(height)
+        self.setFixedHeight(CHANGE_BOARD_UPPER_BUTTONS_AREA_HEIGHT + height * SQUARE_SIZE + CHANGE_BOARD_LOWER_BUTTONS_AREA_HEIGHT)
+        self.setFixedWidth(width * SQUARE_SIZE + CHANGE_BOARD_MIN_WIDTH)
+        self.ChangeBoardWidget.setFixedHeight(CHANGE_BOARD_UPPER_BUTTONS_AREA_HEIGHT + height * SQUARE_SIZE + CHANGE_BOARD_LOWER_BUTTONS_AREA_HEIGHT)
+        self.ChangeBoardWidget.setFixedWidth(width * SQUARE_SIZE + CHANGE_BOARD_MIN_WIDTH)
+        x = int(self.width() / 2 - width * SQUARE_SIZE / 2)
+        y = int(CHANGE_BOARD_UPPER_BUTTONS_AREA_HEIGHT + CHANGE_BOARD_DISTANCE_BOARD_FROM_UPPER_BUTTONS)
+        for row in range(height):
+            x = int(self.geometry().width() / 2 - width * SQUARE_SIZE / 2)
+            for column in range(width):
+                custom_button = add_button(self, "button", x, y)
+                custom_button.clicked.connect(partial(self.__on_press, x=row, y=column))
+                self.new_board[row].append(custom_button)
+                x += SQUARE_SIZE
+            y += SQUARE_SIZE
+        self.ConfirmButton.move(int(self.width() / 2 - self.ConfirmButton.width() / 2), y + CHANGE_BOARD_DISTANCE_BOARD_FROM_LOWER_BUTTONS)
+        self.Title.move(int(self.width() / 2 - self.Title.width() / 2), self.Title.pos().y())
+        self.WidthField.move(int(self.width() / 2 - self.WidthField.width() - CHANGE_BOARD_DISTANCE_BETWEEN_WIDTH_AND_HEIGHT_FIELDS / 2), self.WidthField.pos().y())
+        self.HeightField.move(int(self.width() / 2 + CHANGE_BOARD_DISTANCE_BETWEEN_WIDTH_AND_HEIGHT_FIELDS / 2), self.HeightField.pos().y())
+        self.OkButton.move(int(self.width() / 2 - self.OkButton.width() / 2), self.OkButton.pos().y())
+
 
 
 class ChangeBestTimesDialog(QDialog):
@@ -253,6 +315,7 @@ class ChangeBestTimesDialog(QDialog):
         super(ChangeBestTimesDialog, self).__init__()
         self.__winmine = winmine
         loadUi("gui/change_best_times_dialog.ui", self)
+        self.OkButton.clicked.connect(self.__change_best_times)
         self.TimeSlider.setValue(0)
         self.__value_change()
         self.TimeSlider.valueChanged.connect(self.__value_change)
@@ -260,6 +323,16 @@ class ChangeBestTimesDialog(QDialog):
     def __value_change(self):
         txt = str(self.TimeSlider.value())
         self.DisplayTimeLabel.setText(txt)
+
+    def __change_best_times(self):
+        difficulty = self.DifficultyBox.currentText()
+        name = self.NameTextField.text()
+        new_time = self.TimeSlider.value()
+        if name == "":
+            name = "Anonymous"
+        self.__winmine.set_best_times(difficulty, name, new_time)
+        # self.__winmine.change_best_time(difficulty, name, new_time)
+        self.close()
 
 
 class AttachToProcessScreen(QDialog):
