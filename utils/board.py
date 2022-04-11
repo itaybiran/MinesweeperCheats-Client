@@ -1,9 +1,6 @@
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QPushButton
 from PIL import Image
-
 from utils.button import CustomButton
-from utils.winmine_exe import WinmineExe
 
 SQUARE_SIZE = 40
 SYMBOL_TO_IMG_PATH = {
@@ -42,7 +39,7 @@ NUMBER_TO_ICON = {
 
 
 def add_button(parent, type_of_square, x, y):
-    button = CustomButton("", parent)
+    button: CustomButton = CustomButton("", parent)
     button.setVisible(True)
     button.move(x, y)
     button.setFixedHeight(24)
@@ -103,4 +100,3 @@ def create_board(matrix_board, path_to_save=""):
     if path_to_save != "":
         board_img.save(path_to_save, "PNG")
     return board_img
-

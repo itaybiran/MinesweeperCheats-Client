@@ -1,21 +1,15 @@
-import asyncio
 import json
-import sys
 import threading
 import time
 from functools import partial
 
 import requests
 import websocket
-from IPython.core.release import url
-from IPython.external.qt_for_kernel import QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QDialog, QListWidgetItem, QTableWidgetItem, QTableWidget, QListWidget, QPushButton, QSlider, \
-    QLabel, QComboBox
+from PyQt5.QtWidgets import QDialog, QListWidgetItem
 from PyQt5.uic import loadUi
 
-import utils.board
 from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX, WINMINE_INDEX, SQUARE_SIZE, \
     REVEAL_BOARD_STARTING_X_POSITION, REVEAL_BOARD_STARTING_Y_POSITION, CHANGE_BOARD_UPPER_BUTTONS_AREA_HEIGHT, \
     CHANGE_BOARD_LOWER_BUTTONS_AREA_HEIGHT, CHANGE_BOARD_MIN_WIDTH, CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW, \
@@ -23,7 +17,7 @@ from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX
     CHANGE_BOARD_DISTANCE_BETWEEN_WIDTH_AND_HEIGHT_FIELDS
 from utils import user_connection_manager, process_manager, board
 from utils.board import calculate_board, add_button
-from utils.message import Message, MessageTypeEnum
+from utils.message import MessageTypeEnum
 from utils.user import User, set_user
 from utils.winmine_exe import WinmineExe
 
@@ -35,6 +29,7 @@ class LoginScreen(QDialog):
         loadUi("gui/login.ui", self)
         self.LoginButton.clicked.connect(lambda: self.__is_valid(window.show_process_screen))
         self.NewUserButton.clicked.connect(window.show_signup_screen)
+        user_connection_manager.disconnect(self.__user)
 
     def __is_valid(self, show_process_screen):
         username = self.UsernameField.text()
@@ -94,6 +89,7 @@ class MultiplayerScreen(QDialog):
         loadUi("gui/multiplayer.ui", self)
         self.CheatsButton.clicked.connect(window.show_cheats_screen)
         self.ProcessButton.clicked.connect(window.show_process_screen)
+        self.LogoutButton.clicked.connect(window.show_login_screen)
         self.ConnectButton.clicked.connect(self.__connect)
         self.SendButton.clicked.connect(self.__send_message)
         self.NameLabel.setText(self.__user.nickname)
@@ -116,7 +112,7 @@ class MultiplayerScreen(QDialog):
         # self.SendButton.setDisabled(is_disabled)
         pass
 
-    def handle_received_message(self, message: Message):
+    def __handle_received_message(self, message):
         message = json.loads(json.loads(message))
         if message["type"] == MessageTypeEnum.chat_message:
             item = QListWidgetItem(message["data"])
@@ -125,9 +121,10 @@ class MultiplayerScreen(QDialog):
             self.MessagesTable.scrollToBottom()
         elif message["type"] == MessageTypeEnum.opponent_data:
             self.OpponentNameLabel.setText(message["data"]["nickname"])
+            self.OpponentRankLabel.setText(str(message["data"]["rank"]))
 
-    def __send_message_with_protocol(self, data: str, type: str):
-        self.__user.ws.send(json.dumps({"data": data, "type": type}))
+    def __send_message_with_protocol(self, data: str, message_type: str):
+        self.__user.ws.send(json.dumps({"data": data, "type": message_type}))
 
     def __send_message(self):
         if self.__user.ws != "" and self.__user.ws.keep_running:
@@ -143,7 +140,7 @@ class MultiplayerScreen(QDialog):
             self.ErrorLabel.setText("find an opponent first")
 
     def __on_message(self, ws, message):
-        self.handle_received_message(message)
+        self.__handle_received_message(message)
 
     def __connect(self):
         if self.__user.ws == "" or not self.__user.ws.keep_running:
@@ -174,6 +171,7 @@ class CheatsScreen(QDialog):
         self.ChangeBoardButton.clicked.connect(self.__show_change_board_dialog)
         self.MultiplayerButton.clicked.connect(window.show_multiplayer_screen)
         self.ProcessButton.clicked.connect(window.show_process_screen)
+        self.LogoutButton.clicked.connect(window.show_login_screen)
         self.ActiveTimerButton.setChecked(True)
 
     def update(self) -> None:
@@ -317,7 +315,6 @@ class ChangeBoardDialog(QDialog):
         self.OkButton.move(int(self.width() / 2 - self.OkButton.width() / 2), self.OkButton.pos().y())
 
 
-
 class ChangeBestTimesDialog(QDialog):
     def __init__(self, winmine: WinmineExe):
         super(ChangeBestTimesDialog, self).__init__()
@@ -351,6 +348,7 @@ class AttachToProcessScreen(QDialog):
         loadUi("gui/attach_to_process.ui", self)
         self.CheatsButton.clicked.connect(window.show_cheats_screen)
         self.MultiplayerButton.clicked.connect(window.show_multiplayer_screen)
+        self.LogoutButton.clicked.connect(window.show_login_screen)
         self.ProcessList.itemDoubleClicked.connect(self.__attach_to_process)
         self.RefreshButton.clicked.connect(self.update)
 
@@ -371,7 +369,7 @@ class AttachToProcessScreen(QDialog):
 
     def update_boards_img_loop(self):
         flag = self.__create_boards_img_in_background()
-        while flag: #add func of is running for window
+        while flag:
             flag = self.__create_boards_img_in_background()
             time.sleep(3)
 
