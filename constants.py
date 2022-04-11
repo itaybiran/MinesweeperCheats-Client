@@ -1,6 +1,7 @@
+
 from winreg import REG_DWORD, REG_SZ
 
-#windows
+# windows
 WIDTH = 700
 HEIGHT = 400
 PID_INDEX = 9
