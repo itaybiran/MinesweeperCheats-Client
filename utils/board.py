@@ -91,7 +91,7 @@ def add_square(board_img, square_img_path, x, y):
     board_img.paste(img, (x, y))
 
 
-def create_board(matrix_board, path_to_save=""):
+def create_board(matrix_board=[[]], path_to_save=""):
     board_img = init_board_img(SQUARE_SIZE * len(matrix_board[0]), SQUARE_SIZE * len(matrix_board))
     for row in range(len(matrix_board)):
         for column in range(len(matrix_board[row])):
@@ -100,3 +100,5 @@ def create_board(matrix_board, path_to_save=""):
     if path_to_save != "":
         board_img.save(path_to_save, "PNG")
     return board_img
+
+

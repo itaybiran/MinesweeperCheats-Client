@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>341</width>
-    <height>360</height>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>0</x>
      <y>0</y>
      <width>341</width>
-     <height>361</height>
+     <height>301</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -28,8 +28,8 @@
    <widget class="QLabel" name="ErrorLabel">
     <property name="geometry">
      <rect>
-      <x>93</x>
-      <y>88</y>
+      <x>94</x>
+      <y>243</y>
       <width>150</width>
       <height>15</height>
      </rect>
@@ -49,7 +49,7 @@ color:rgb(255, 82, 82)</string>
     <property name="geometry">
      <rect>
       <x>99</x>
-      <y>20</y>
+      <y>13</y>
       <width>141</width>
       <height>31</height>
      </rect>
@@ -67,104 +67,17 @@ color:rgb(255, 82, 82)</string>
 color:white;</string>
     </property>
     <property name="text">
-     <string>Insert new size</string>
+     <string>Insert Bombs</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="WidthField">
-    <property name="geometry">
-     <rect>
-      <x>47</x>
-      <y>66</y>
-      <width>111</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color:rgba(236, 158, 255, 100);
-border-radius:3px;
-color:white;
-</string>
-    </property>
-    <property name="dragEnabled">
-     <bool>false</bool>
-    </property>
-    <property name="placeholderText">
-     <string> width...</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="HeightField">
-    <property name="geometry">
-     <rect>
-      <x>179</x>
-      <y>66</y>
-      <width>111</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color:rgba(236, 158, 255, 100);
-border-radius:3px;
-color:white;
-</string>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="dragEnabled">
-     <bool>false</bool>
-    </property>
-    <property name="placeholderText">
-     <string> height...</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="OkButton">
-    <property name="geometry">
-     <rect>
-      <x>129</x>
-      <y>106</y>
-      <width>80</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Segoe UI Black</family>
-      <pointsize>10</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="cursor">
-     <cursorShape>ClosedHandCursor</cursorShape>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QPushButton::hover
-{
-background-color:rgb(216, 140, 234);
-}
-
-QPushButton
-{
-background-color:rgba(236, 158, 255, 170);
-border-radius:3px;
-color: white;
-};</string>
-    </property>
-    <property name="text">
-     <string>ok</string>
-    </property>
-    <property name="shortcut">
-     <string>Return</string>
     </property>
    </widget>
    <widget class="QPushButton" name="ConfirmButton">
     <property name="geometry">
      <rect>
       <x>94</x>
-      <y>320</y>
+      <y>260</y>
       <width>151</width>
       <height>25</height>
      </rect>
@@ -198,6 +111,57 @@ color: white;
     </property>
     <property name="shortcut">
      <string>Return</string>
+    </property>
+   </widget>
+   <widget class="QProgressBar" name="BombsBar">
+    <property name="geometry">
+     <rect>
+      <x>91</x>
+      <y>42</y>
+      <width>191</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:transparent;
+</string>
+    </property>
+    <property name="value">
+     <number>24</number>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="RefreshButton">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>13</y>
+      <width>41</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>ClosedHandCursor</cursorShape>
+    </property>
+    <property name="whatsThis">
+     <string/>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:transparent;
+border-radius:20px;
+</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>../img/refresh.png</normaloff>../img/refresh.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>32</width>
+      <height>32</height>
+     </size>
     </property>
    </widget>
   </widget>

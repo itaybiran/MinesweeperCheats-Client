@@ -1,8 +1,14 @@
-
+import ctypes
 import threading
 import time
 from winreg import *
+
+import win32gui
+import win32process
+from win32con import HWND_TOP, SW_MINIMIZE, SW_MAXIMIZE, SW_HIDE, SW_SHOW
+
 from constants import *
+from utils import calculates
 from utils.memory import write_process_memory, read_process_memory
 ConnectRegistry(None, HKEY_LOCAL_MACHINE)
 
@@ -19,6 +25,7 @@ class WinmineExe(object):
 
     def change_timer(self, new_time):
         write_process_memory(self.__pid, SECONDS_COUNTER, new_time, 2)
+        self.redraw_window()
 
     def get_timer(self):
         return read_process_memory(self.__pid, SECONDS_COUNTER, 1)
@@ -80,6 +87,8 @@ class WinmineExe(object):
         write_process_memory(self.__pid, BOARD_HEIGHT_MENU_ADDRESS, height, 1)
         write_process_memory(self.__pid, BOARD_HEIGHT_ADDRESS, height, 1)
         write_process_memory(self.__pid, BOARD_WIDTH_ADDRESS, width, 1)
+        write_process_memory(self.__pid, PIXELS_TO_DRAW_HEIGHT_ADDRESS, height*SQUARE_SIZE + BAR_PIXELS_HEIGHT, 2)
+        write_process_memory(self.__pid, PIXELS_TO_DRAW_WIDTH_ADDRESS, width*SQUARE_SIZE + BAR_PIXELS_WIDTH, 2)
 
     def write_to_winmine_registry(self, key, new_value):
         key_handle = OpenKey(HKEY_CURRENT_USER, WINMINE_REGISTRY_PATH, 0, KEY_ALL_ACCESS)
@@ -102,34 +111,82 @@ class WinmineExe(object):
         write_process_memory(self.__pid, 0x010056A4, new_number_of_bombs, 1)
         write_process_memory(self.__pid, NUMBER_OF_BOMBS_ADDRESS, new_number_of_bombs, 1)
         write_process_memory(self.__pid, INIT_NUMBER_OF_BOMBS_ADDRESS, new_number_of_bombs, 1)
+        write_process_memory(self.__pid, NUMBER_OF_SAFE_PLACES_ADDRESS, self.get_board_size()[0]*self.get_board_size()[1] - new_number_of_bombs, 2)
 
     def count_backward(self, start):
         cur_time = start
-        self.change_timer(self.__pid, cur_time)
+        self.change_timer(cur_time)
         t = threading.Thread(target=self.ignore_click, args=[self.__pid])
         t.start()
         while cur_time > 0:
-            self.stop_timer(self.__pid)
-            self.change_timer(self.__pid, cur_time - 1)
-            self.start_timer(self.__pid)
+            self.stop_timer()
+            self.change_timer(cur_time - 1)
+            self.start_timer()
             cur_time -= 1
             time.sleep(1)
         t.join()
 
     def ignore_click(self):
-        while self.get_timer(self.__pid) > 0:
+        while self.get_timer() > 0:
             write_process_memory(self.__pid, DISABLE_CLICK_FLAG_ADDRESS, 1, 1)
         write_process_memory(self.__pid, DISABLE_CLICK_FLAG_ADDRESS, 0, 1)
 
     def set_best_times(self, difficulty, name, score):
-        a = 0x010056D9
+        #a = 0x010056D9
         write_process_memory(self.__pid, BEST_TIMES_ADDRESS[MODE_TO_NUMBER[difficulty]], score, 2)
         for index in range(MAX_NAME_LENGTH):
             try:
-                write_process_memory(self.__pid,a + 2 * index, 0, 1)
+                #write_process_memory(self.__pid, a + 2 * index, 0, 1)
                 write_process_memory(self.__pid, BEST_TIME_NAMES_ADDRESS[MODE_TO_NUMBER[difficulty]] + 2 * index, ord(name[index]), 1)
             except IndexError:
                 write_process_memory(self.__pid, BEST_TIME_NAMES_ADDRESS[MODE_TO_NUMBER[difficulty]] + 2 * index, 0, 1)
+
+    def is_in_middle_of_game(self):
+        status = read_process_memory(self.__pid, RUNNING_FLAG, 1)
+        if status == 1:
+            status_game_by_memory = True
+        else:
+             status_game_by_memory = False
+        for row in self.get_board():
+            for square in row:
+                if square not in START_GAME_SQUARES:
+                    return False
+        return status_game_by_memory
+
+    def restart_game(self, board):
+        self.set_number_of_bombs(calculates.calculate_number_of_bombs(board))
+        self.set_board(board)
+        self.change_timer(0)
+        self.start_timer()
+        self.redraw_window()
+
+    def redraw_window(self):
+        hwnd = self.get_window_handle()
+        user32 = ctypes.WinDLL("user32.dll")
+        user32.ShowWindow(hwnd, SW_HIDE)
+        user32.ShowWindow(hwnd, SW_SHOW)
+
+    def get_window_handle(self):
+        """The challenge: to find the windows belonging to the process you've just kicked off.
+The idea is that if, for example, you run a notepad session, you then want to read the text entered into it,
+ or close it down if it's been open too long, or whatever.
+  The problem is that Windows doesn't provide a straightforward mapping from process id to window.
+The situation is complicated because some process may not have a window, or may have several.
+ The approach below uses the venerable technique of iterating over all top-level windows and finding the ones belonging to a process id.
+  It only considers windows which are visible and enabled (which is generally what you want)
+   and returns a list of the ones associated with your pid.
+The test code runs up a notepad session using subprocess and passes its pid along after a couple of seconds,
+ since experience showed that firing off the search too soon wouldn't find the window.
+  Obviously, your own code could do whatever you wanted with the window."""
+        def callback(hwnd, hwnds):
+            if win32gui.IsWindowVisible(hwnd) and win32gui.IsWindowEnabled(hwnd):
+                _, found_pid = win32process.GetWindowThreadProcessId(hwnd)
+                if found_pid == self.__pid:
+                    hwnds.append(hwnd)
+            return True
+        hwnds = []
+        win32gui.EnumWindows(callback, hwnds)
+        return hwnds[0]
 
     def __repr__(self):
         return f"Pid: {self.__pid}           Mode: {NUMBER_TO_MODE[str(self.get_mode())]}           Size: {self.get_board_size()[0]} on {self.get_board_size()[1]}           Number Of Bombs: {self.get_number_of_bombs()}"

@@ -7,17 +7,19 @@ import requests
 import websocket
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QDialog, QListWidgetItem
+from PyQt5.QtWidgets import QDialog, QListWidgetItem, QListWidget, QProgressBar
 from PyQt5.uic import loadUi
 
 from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX, WINMINE_INDEX, SQUARE_SIZE, \
-    REVEAL_BOARD_STARTING_X_POSITION, REVEAL_BOARD_STARTING_Y_POSITION, CHANGE_BOARD_UPPER_BUTTONS_AREA_HEIGHT, \
-    CHANGE_BOARD_LOWER_BUTTONS_AREA_HEIGHT, CHANGE_BOARD_MIN_WIDTH, CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW, \
-    CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_BUTTONS, CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_BUTTONS, \
-    CHANGE_BOARD_DISTANCE_BETWEEN_WIDTH_AND_HEIGHT_FIELDS
-from utils import user_connection_manager, process_manager, board
+    REVEAL_BOARD_STARTING_X_POSITION, REVEAL_BOARD_STARTING_Y_POSITION, \
+    CHANGE_BOARD_MIN_WIDTH, CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW, \
+    CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA, CHANGE_BOARD_UPPER_AREA_HEIGHT, CHANGE_BOARD_LOWER_AREA_HEIGHT, \
+    CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_AREA, RUNNING_FLAG, MIN_NUM_OF_BOMBS
+from utils import user_connection_manager, process_manager, board, calculates
 from utils.board import calculate_board, add_button
+from utils.memory import write_process_memory
 from utils.message import MessageTypeEnum
+from utils.process_manager import get_all_pids
 from utils.user import User, set_user
 from utils.winmine_exe import WinmineExe
 
@@ -243,6 +245,7 @@ class RevealBoardDialog(QDialog):
         self.__winmine = winmine
         loadUi("gui/reveal_board_dialog.ui", self)
         self.__reveal_board()
+        self.bombs_counter = 0
 
     def __reveal_board(self):
         current_board = calculate_board(self.__winmine.get_board())
@@ -262,57 +265,99 @@ class ChangeBoardDialog(QDialog):
     def __init__(self, winmine: WinmineExe):
         super(ChangeBoardDialog, self).__init__()
         self.__winmine = winmine
-        self.new_board = []
+        self.new_buttons_board = []
         loadUi("gui/change_board_dialog.ui", self)
-        self.HeightField.setText("9")
-        self.WidthField.setText("9")
         self.__display_empty_board()
-        self.OkButton.clicked.connect(self.__display_empty_board)
+        self.__current_board_height = self.__winmine.get_board_size()[0]
+        self.__current_board_width = self.__winmine.get_board_size()[1]
+        self.ConfirmButton.clicked.connect(self.__change_board)
+        self.RefreshButton.clicked.connect(self.__refresh)
+        self.bombs_counter = 0
+        self.BombsBar.setValue(100)
 
     def __init_board(self, height):
         for i in range(height):
-            self.new_board.append([])
+            self.new_buttons_board.append([])
 
     def __on_press(self, x, y):
-        custom_button = self.new_board[x][y]
+        custom_button = self.new_buttons_board[x][y]
         if custom_button.get_status():
             custom_button.setIcon(QIcon("img/button.png"))
+            self.bombs_counter -= 1
         else:
             custom_button.setIcon(QIcon("img/bomb.png"))
+            self.bombs_counter += 1
+        self.__update_progress_bar()
         custom_button.change_status()
 
     def __display_empty_board(self):
-        for row in range(len(self.new_board)):
-            for column in range(len(self.new_board[0])):
-                self.new_board[row][column].hide()
-        self.new_board = []
-        height = int(self.HeightField.text())
-        width = int(self.WidthField.text())
+        for row in range(len(self.new_buttons_board)):
+            for column in range(len(self.new_buttons_board[0])):
+                self.new_buttons_board[row][column].hide()
+        self.new_buttons_board = []
+        height, width = self.__winmine.get_board_size()
         self.__init_board(height)
-        self.setFixedHeight(CHANGE_BOARD_UPPER_BUTTONS_AREA_HEIGHT + height * SQUARE_SIZE + CHANGE_BOARD_LOWER_BUTTONS_AREA_HEIGHT)
-        self.ChangeBoardWidget.setFixedHeight(CHANGE_BOARD_UPPER_BUTTONS_AREA_HEIGHT + height * SQUARE_SIZE + CHANGE_BOARD_LOWER_BUTTONS_AREA_HEIGHT)
+        self.setFixedHeight(CHANGE_BOARD_UPPER_AREA_HEIGHT + height * SQUARE_SIZE + CHANGE_BOARD_LOWER_AREA_HEIGHT)
+        self.ChangeBoardWidget.setFixedHeight(CHANGE_BOARD_UPPER_AREA_HEIGHT + height * SQUARE_SIZE + CHANGE_BOARD_LOWER_AREA_HEIGHT)
+
         if width * SQUARE_SIZE < CHANGE_BOARD_MIN_WIDTH:
             self.setFixedWidth(CHANGE_BOARD_MIN_WIDTH)
             self.ChangeBoardWidget.setFixedWidth(CHANGE_BOARD_MIN_WIDTH)
         else:
-
             self.setFixedWidth(width * SQUARE_SIZE + CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW)
             self.ChangeBoardWidget.setFixedWidth(width * SQUARE_SIZE + CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW)
-        x = int(self.width() / 2 - width * SQUARE_SIZE / 2)
-        y = int(CHANGE_BOARD_UPPER_BUTTONS_AREA_HEIGHT + CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_BUTTONS)
+
+        y = int(CHANGE_BOARD_UPPER_AREA_HEIGHT + CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_AREA)
         for row in range(height):
-            x = int(self.geometry().width() / 2 - width * SQUARE_SIZE / 2)
+            x = int(self.geometry().width() / 2 - width * SQUARE_SIZE / 2) - 4
             for column in range(width):
                 custom_button = add_button(self, "button", x, y)
                 custom_button.clicked.connect(partial(self.__on_press, x=row, y=column))
-                self.new_board[row].append(custom_button)
+                self.new_buttons_board[row].append(custom_button)
                 x += SQUARE_SIZE
             y += SQUARE_SIZE
-        self.ConfirmButton.move(int(self.width() / 2 - self.ConfirmButton.width() / 2), y + CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_BUTTONS)
+
+        self.__current_board_width = width
+        self.__current_board_height = height
+
+        self.ConfirmButton.move(int(self.width() / 2 - self.ConfirmButton.width() / 2), y + CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA)
+        self.ErrorLabel.move(int(self.width() / 2 - self.ErrorLabel.width() / 2), y - 15 + CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA)
         self.Title.move(int(self.width() / 2 - self.Title.width() / 2), self.Title.pos().y())
-        self.WidthField.move(int(self.width() / 2 - self.WidthField.width() - CHANGE_BOARD_DISTANCE_BETWEEN_WIDTH_AND_HEIGHT_FIELDS / 2), self.WidthField.pos().y())
-        self.HeightField.move(int(self.width() / 2 + CHANGE_BOARD_DISTANCE_BETWEEN_WIDTH_AND_HEIGHT_FIELDS / 2), self.HeightField.pos().y())
-        self.OkButton.move(int(self.width() / 2 - self.OkButton.width() / 2), self.OkButton.pos().y())
+        self.BombsBar.move(int(self.width() / 2 - self.BombsBar.width() / 2 + 20), self.BombsBar.pos().y())
+        self.RefreshButton.move(int(self.width() - self.RefreshButton.width() - 10), self.RefreshButton.pos().y())
+
+    def __change_board(self):
+        if self.__current_board_height == self.__winmine.get_board_size()[0] or self.__current_board_width == self.__winmine.get_board_size()[1]:
+            if self.__winmine.is_in_middle_of_game():
+                if self.bombs_counter >= MIN_NUM_OF_BOMBS:
+                    print(self.__get_new_board())
+                    self.__winmine.restart_game(self.__get_new_board())
+                    write_process_memory(self.__winmine.get_pid(), RUNNING_FLAG, 1, 1)
+                    self.ErrorLabel.setText("")
+                else:
+                    self.ErrorLabel.setText("Please put at least 10 bombs")
+            else:
+                self.ErrorLabel.setText("Please click the smiley button")
+        else:
+            self.ErrorLabel.setText("Please press the button to adjust the board's side to the right measurments")
+
+    def __get_new_board(self):
+        new_board = [[]]
+        for row in range(len(self.new_buttons_board)):
+            for button in self.new_buttons_board[row]:
+                if button.get_status():
+                    new_board[row].append("HIDDEN_BOMB")
+                elif not button.get_status():
+                    new_board[row].append("SAFE_PLACE")
+            new_board.append([])
+        new_board.pop()
+        return new_board
+
+    def __update_progress_bar(self):
+        self.BombsBar.setValue(int(100 - (self.bombs_counter / calculates.calculate_max_bombs(len(self.new_buttons_board[0]), len(self.new_buttons_board)) * 100)))
+
+    def __refresh(self):
+        self.__display_empty_board()
 
 
 class ChangeBestTimesDialog(QDialog):
@@ -356,8 +401,12 @@ class AttachToProcessScreen(QDialog):
         thread_list = []
         try:
             for index in range(self.ProcessList.count()):
-                winmine = self.ProcessList.item(index).data(WINMINE_INDEX)
-                thread_list.append(threading.Thread(target=board.create_board, args=[winmine.get_board(), f"./img/boards/{winmine.get_pid()}.png"]))
+                current_item = self.ProcessList.item(index)
+                winmine = current_item.data(WINMINE_INDEX)
+                if winmine:
+                    thread_list.append(threading.Thread(target=board.create_board, args=[winmine.get_board(), f"./img/boards/{winmine.get_pid()}.png"]))
+                else:
+                    thread_list.append(threading.Thread(target=board.create_board))
             for thread in thread_list:
                 thread.start()
             for thread in thread_list:
@@ -368,8 +417,10 @@ class AttachToProcessScreen(QDialog):
             return False
 
     def update_boards_img_loop(self):
+        self.__delete_closed_processes_from_list()
         flag = self.__create_boards_img_in_background()
         while flag:
+            self.__delete_closed_processes_from_list()
             flag = self.__create_boards_img_in_background()
             time.sleep(3)
 
@@ -381,6 +432,15 @@ class AttachToProcessScreen(QDialog):
         winmines = process_manager.get_winmines(pids)
         self.__init_process_table(winmines)
 
+    def __delete_closed_processes_from_list(self):
+        running_processes = process_manager.get_all_pids()
+        for index in range(self.ProcessList.count()):
+            process = self.ProcessList.item(index)
+            if process and process.data(PID_INDEX) not in running_processes:
+                if self.__winmine.get_pid() == process.data(PID_INDEX):
+                    self.__winmine.set_pid(0)
+                self.update()
+
     def __init_process_table(self, winmines):
         self.ProcessList.clear()
         if self.__winmine.get_pid() != 0:
@@ -389,13 +449,15 @@ class AttachToProcessScreen(QDialog):
             item.setIcon(QIcon("img/bomb-icon.png"))
             item.setData(3, f'<img src="img/boards/{item.data(PID_INDEX)}.png" size="{self.__winmine.get_board_size()[1]*8}" height="{self.__winmine.get_board_size()[0]*8}"/>')
             item.setData(WINMINE_INDEX, self.__winmine)
-            self.ProcessList.addItem(item)
+            if item.data(PID_INDEX) in get_all_pids():
+                self.ProcessList.addItem(item)
         for winmine in winmines:
             item = QListWidgetItem(repr(winmine))
             item.setData(PID_INDEX, winmine.get_pid())
             item.setData(3, f'<img src="img/boards/{item.data(PID_INDEX)}.png" width="{winmine.get_board_size()[1]*8}" height="{winmine.get_board_size()[0]*8}"/>')
             item.setData(WINMINE_INDEX, winmine)
-            self.ProcessList.addItem(item)
+            if item.data(PID_INDEX) in get_all_pids():
+                self.ProcessList.addItem(item)
 
     def __attach_to_process(self, item):
         if item.data(PID_INDEX) != self.__winmine.get_pid():

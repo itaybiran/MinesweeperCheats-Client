@@ -2107,7 +2107,7 @@ margin-left:1px;
      </size>
     </property>
     <property name="shortcut">
-     <string>Return</string>
+     <string/>
     </property>
    </widget>
   </widget>

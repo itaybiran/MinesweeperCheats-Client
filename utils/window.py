@@ -13,7 +13,11 @@ class Window:
         self.__widget = QStackedWidget()
         self.__winmine = winmine
         self.__user = user
-        self.__init_screens()
+        self.__login_screen = LoginScreen(self.__user, self)
+        self.__signup_screen = SignupScreen(self.__user, self)
+        self.__cheats_screen = CheatsScreen(self.__winmine, self.__user, self)
+        self.__multiplayer_screen = MultiplayerScreen(self.__winmine, self.__user, self)
+        self.__process_screen = AttachToProcessScreen(self.__winmine, self.__user, self)
         self.__set_window_size(WIDTH, HEIGHT)
         self.__widget.show()
         threading.Thread(target=self.__process_screen.update_boards_img_loop).start()
@@ -42,13 +46,5 @@ class Window:
         self.__widget.setCurrentIndex(self.__widget.currentIndex() + 1)
 
     def show_login_screen(self):
-        self.__init_screens()
         self.__widget.addWidget(self.__login_screen)
         self.__widget.setCurrentIndex(self.__widget.currentIndex() + 1)
-
-    def __init_screens(self):
-        self.__login_screen = LoginScreen(self.__user, self)
-        self.__signup_screen = SignupScreen(self.__user, self)
-        self.__cheats_screen = CheatsScreen(self.__winmine, self.__user, self)
-        self.__multiplayer_screen = MultiplayerScreen(self.__winmine, self.__user, self)
-        self.__process_screen = AttachToProcessScreen(self.__winmine, self.__user, self)
