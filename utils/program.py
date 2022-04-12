@@ -13,7 +13,8 @@ class Program:
         self.__winmine: WinmineExe = WinmineExe()
         self.__user: User = User()
         self.__app = QApplication(sys.argv)
-        self.__window = Window(self.__winmine, self.__user)
+        self.__is_running = [True]
+        self.__window = Window(self.__winmine, self.__user, self.__is_running)
 
     def run(self):
         self.__window.show_login_screen()
@@ -25,6 +26,7 @@ class Program:
             self.__exit()
 
     def __exit(self):
+        self.__is_running[0] = False
         process_manager.change_pid_status(self.__winmine.get_pid())
         if self.__user.ws and self.__user.ws.keep_running:
             self.__user.ws.close()

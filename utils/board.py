@@ -1,49 +1,15 @@
 from PyQt5.QtGui import QIcon
 from PIL import Image
+from constants import NUMBER_TO_ICON, SQUARE_SIZE_TOOLTIP, SYMBOL_TO_IMG_PATH, SQUARE_BUTTON_SIZE
 from utils.button import CustomButton
-
-SQUARE_SIZE = 40
-SYMBOL_TO_IMG_PATH = {
-    "EMPTY_SQUARE": "./img/empty.png",
-    "ONE": "./img/one.png",
-    "TWO": "./img/two.png",
-    "THREE": "./img/three.png",
-    "FOUR": "./img/four.png",
-    "FIVE": "./img/five.png",
-    "SIX": "./img/six.png",
-    "SEVEN": "./img/seven.png",
-    "EIGHT": "./img/eight.png",
-    "BOMB": "./img/bomb.png",
-    "BOMB_YOU_TOUCHED": "./img/bomb.png",
-    "BOMB_WITH_X": "./img/bomb.png",
-    "HIDDEN_BOMB": "./img/button.png",
-    "SAFE_PLACE": "./img/button.png",
-    "RIGHT_FLAG": "./img/flag.png",
-    "WRONG_FLAG": "./img/flag.png",
-    "QUESTION_MARK": "./img/question_mark"
-}
-
-NUMBER_TO_ICON = {
-    "0": "./img/empty.png",
-    "1": "./img/one.png",
-    "2": "./img/two.png",
-    "3": "./img/three.png",
-    "4": "./img/four.png",
-    "5": "./img/five.png",
-    "6": "./img/six.png",
-    "7": "./img/seven.png",
-    "8": "./img/eight.png",
-    "bomb": "./img/bomb.png",
-    "button": "./img/button.png"
-}
 
 
 def add_button(parent, type_of_square, x, y):
     button: CustomButton = CustomButton("", parent)
     button.setVisible(True)
     button.move(x, y)
-    button.setFixedHeight(24)
-    button.setFixedWidth(24)
+    button.setFixedHeight(SQUARE_BUTTON_SIZE)
+    button.setFixedWidth(SQUARE_BUTTON_SIZE)
     button.setIcon(QIcon(NUMBER_TO_ICON[str(type_of_square)]))
     button.setStyleSheet(
         "background-color:transparent;"
@@ -92,13 +58,11 @@ def add_square(board_img, square_img_path, x, y):
 
 
 def create_board(matrix_board=[[]], path_to_save=""):
-    board_img = init_board_img(SQUARE_SIZE * len(matrix_board[0]), SQUARE_SIZE * len(matrix_board))
+    board_img = init_board_img(SQUARE_SIZE_TOOLTIP * len(matrix_board[0]), SQUARE_SIZE_TOOLTIP * len(matrix_board))
     for row in range(len(matrix_board)):
         for column in range(len(matrix_board[row])):
-            add_square(board_img, SYMBOL_TO_IMG_PATH[str(matrix_board[row][column])], column * SQUARE_SIZE,
-                       row * SQUARE_SIZE)
+            add_square(board_img, SYMBOL_TO_IMG_PATH[str(matrix_board[row][column])], column * SQUARE_SIZE_TOOLTIP,
+                       row * SQUARE_SIZE_TOOLTIP)
     if path_to_save != "":
         board_img.save(path_to_save, "PNG")
     return board_img
-
-

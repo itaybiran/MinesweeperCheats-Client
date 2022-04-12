@@ -2,11 +2,9 @@ import ctypes
 import threading
 import time
 from winreg import *
-
 import win32gui
 import win32process
-from win32con import HWND_TOP, SW_MINIMIZE, SW_MAXIMIZE, SW_HIDE, SW_SHOW
-
+from win32con import SW_HIDE, SW_SHOW
 from constants import *
 from utils import calculates
 from utils.memory import write_process_memory, read_process_memory
@@ -132,11 +130,9 @@ class WinmineExe(object):
         write_process_memory(self.__pid, DISABLE_CLICK_FLAG_ADDRESS, 0, 1)
 
     def set_best_times(self, difficulty, name, score):
-        #a = 0x010056D9
         write_process_memory(self.__pid, BEST_TIMES_ADDRESS[MODE_TO_NUMBER[difficulty]], score, 2)
         for index in range(MAX_NAME_LENGTH):
             try:
-                #write_process_memory(self.__pid, a + 2 * index, 0, 1)
                 write_process_memory(self.__pid, BEST_TIME_NAMES_ADDRESS[MODE_TO_NUMBER[difficulty]] + 2 * index, ord(name[index]), 1)
             except IndexError:
                 write_process_memory(self.__pid, BEST_TIME_NAMES_ADDRESS[MODE_TO_NUMBER[difficulty]] + 2 * index, 0, 1)
@@ -146,7 +142,7 @@ class WinmineExe(object):
         if status == 1:
             status_game_by_memory = True
         else:
-             status_game_by_memory = False
+            status_game_by_memory = False
         for row in self.get_board():
             for square in row:
                 if square not in START_GAME_SQUARES:

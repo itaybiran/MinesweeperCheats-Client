@@ -12,7 +12,7 @@ def write_process_memory(pid, memory_address, data, bytes_to_write):
     data_in_bytes = data.to_bytes(bytes_to_write, byteorder="little")
     handle = kernel32.OpenProcess(PROCESS_ALL_ACCESS, False, pid)
     buffer = ctypes.create_string_buffer(data_in_bytes)
-    value = kernel32.WriteProcessMemory(handle, memory_address, buffer, bytes_to_write, None)
+    kernel32.WriteProcessMemory(handle, memory_address, buffer, bytes_to_write, None)
     kernel32.CloseHandle(handle)
 
 
@@ -22,7 +22,6 @@ def read_process_memory(pid, memory_address, number_of_bytes_to_read):
     handle = kernel32.OpenProcess(PROCESS_VM_READ, False, pid)
     buffer = (ctypes.c_byte * number_of_bytes_to_read)()
     bytes_read = ctypes.c_ulonglong()
-    value = kernel32.ReadProcessMemory(handle, memory_address, buffer, number_of_bytes_to_read,
-                                       ctypes.byref(bytes_read))
+    kernel32.ReadProcessMemory(handle, memory_address, buffer, number_of_bytes_to_read, ctypes.byref(bytes_read))
     kernel32.CloseHandle(handle)
     return struct.unpack(BYTES_TO_READ[number_of_bytes_to_read], buffer)[0]

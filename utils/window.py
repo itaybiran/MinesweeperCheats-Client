@@ -9,9 +9,10 @@ from utils.winmine_exe import WinmineExe
 
 
 class Window:
-    def __init__(self, winmine: WinmineExe, user: User):
+    def __init__(self, winmine: WinmineExe, user: User, is_running):
         self.__widget = QStackedWidget()
         self.__winmine = winmine
+        self.is_running = is_running
         self.__user = user
         self.__login_screen = LoginScreen(self.__user, self)
         self.__signup_screen = SignupScreen(self.__user, self)
@@ -20,7 +21,6 @@ class Window:
         self.__process_screen = AttachToProcessScreen(self.__winmine, self.__user, self)
         self.__set_window_size(WIDTH, HEIGHT)
         self.__widget.show()
-        threading.Thread(target=self.__process_screen.update_boards_img_loop).start()
 
     def __set_window_size(self, width, height):
         self.__widget.setFixedWidth(width)

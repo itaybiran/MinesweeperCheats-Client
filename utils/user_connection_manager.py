@@ -1,5 +1,4 @@
 import requests
-
 from constants import SERVER_URL
 from utils.user import User
 

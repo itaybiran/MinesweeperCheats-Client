@@ -5,12 +5,16 @@ from winreg import REG_DWORD, REG_SZ
 WIDTH = 700
 HEIGHT = 400
 PID_INDEX = 9
+DEFAULT_PID = 0
 WINMINE_INDEX = 5
 SQUARE_SIZE = 16
+
+MAX_PERCENTAGE = 100
 
 REVEAL_BOARD_STARTING_X_POSITION = 10
 REVEAL_BOARD_STARTING_Y_POSITION = 10
 
+CHANGE_BOARD_FIX_ALIGNMENT = 4
 CHANGE_BOARD_UPPER_AREA_HEIGHT = 50
 CHANGE_BOARD_LOWER_AREA_HEIGHT = 80
 CHANGE_BOARD_MIN_WIDTH = 300
@@ -54,6 +58,7 @@ LAST_MEMORY_REPRESENTING_BOARD = 0x0100569F
 VALUE_TO_SYMBOL = {0x8E: "RIGHT_FLAG",
                    0x0E: "WRONG_FLAG",
                    0x8D: "QUESTION_MARK",
+                   0x0D: "QUESTION_MARK",
                    0x8F: "HIDDEN_BOMB",
                    0xCC: "BOMB_YOU_TOUCHED",
                    0x0B: "BOMB_WITH_X",
@@ -111,5 +116,52 @@ BEST_TIME_NAMES_ADDRESS = {EASY_MODE: BEST_TIME_NAME_EASY_ADDRESS,
                            INTIMIDATE_MODE: BEST_TIME_NAME_INTIMIDATE_ADDRESS,
                            EXPERT_MODE: BEST_TIME_NAME_EXPERT_ADDRESS}
 
+# board
+SQUARE_SIZE_TOOLTIP = 40
+SQUARE_BUTTON_SIZE = 24
+SYMBOL_TO_IMG_PATH = {
+    "EMPTY_SQUARE": "./img/board-icons/empty.png",
+    "ONE": "./img/board-icons/one.png",
+    "TWO": "./img/board-icons/two.png",
+    "THREE": "./img/board-icons/three.png",
+    "FOUR": "./img/board-icons/four.png",
+    "FIVE": "./img/board-icons/five.png",
+    "SIX": "./img/board-icons/six.png",
+    "SEVEN": "./img/board-icons/seven.png",
+    "EIGHT": "./img/board-icons/eight.png",
+    "BOMB": "./img/board-icons/bomb.png",
+    "BOMB_YOU_TOUCHED": "./img/board-icons/bomb.png",
+    "BOMB_WITH_X": "./img/board-icons/bomb.png",
+    "HIDDEN_BOMB": "./img/board-icons/button.png",
+    "SAFE_PLACE": "./img/board-icons/button.png",
+    "RIGHT_FLAG": "./img/board-icons/flag.png",
+    "WRONG_FLAG": "./img/board-icons/flag.png",
+    "QUESTION_MARK": "./img/board-icons/question_mark.png"
+}
+NUMBER_TO_ICON = {
+    "0": "./img/board-icons/empty.png",
+    "1": "./img/board-icons/one.png",
+    "2": "./img/board-icons/two.png",
+    "3": "./img/board-icons/three.png",
+    "4": "./img/board-icons/four.png",
+    "5": "./img/board-icons/five.png",
+    "6": "./img/board-icons/six.png",
+    "7": "./img/board-icons/seven.png",
+    "8": "./img/board-icons/eight.png",
+    "bomb": "./img/board-icons/bomb.png",
+    "button": "./img/board-icons/button.png"
+}
+
+# process manager
+
+PIDS_FILE_PATH = "pids.txt"
+WRITE_AND_READ_PERMISSION = "r+"
+PID = 0
+STATUS = 1
+AVAILABLE = "0"
+NOT_AVAILABLE = "1"
+
 # Networking
 SERVER_URL = "http://127.0.0.1:8000"
+STATUS_CODE_OK = 200
+STATUS_CODE_BAD_REQUEST = 401

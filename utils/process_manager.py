@@ -1,13 +1,6 @@
 import os
-
+from constants import PIDS_FILE_PATH, PID, STATUS, AVAILABLE
 from utils.winmine_exe import WinmineExe
-
-PIDS_FILE_PATH = "utils/pids.txt"
-WRITE_AND_READ_PERMISSION = "r+"
-PID = 0
-STATUS = 1
-AVAILABLE = "0"
-NOT_AVAILABLE = "1"
 
 
 def get_all_pids():
