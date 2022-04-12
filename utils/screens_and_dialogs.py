@@ -127,7 +127,8 @@ class AttachToProcessScreen(QDialog):
                 self.__update_process_list()
             except RuntimeError:
                 pass
-        shutil.rmtree(f"img/boards_{self.__user.nickname}")
+        if os.path.exists(f'img/boards_{self.__user.nickname}'):
+            shutil.rmtree(f"img/boards_{self.__user.nickname}")
 
     def update(self) -> None:
         user_connection_manager.disconnect(self.__user)
