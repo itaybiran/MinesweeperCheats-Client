@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import threading
 import time
 from functools import partial
@@ -108,7 +109,7 @@ class AttachToProcessScreen(QDialog):
 
     def __create_board_img_in_background(self, winmine):
         if winmine is not None:
-            path_to_save = f"./img/boards/{winmine.get_pid()}.png"
+            path_to_save = f"./img/boards_{self.__user.nickname}/{winmine.get_pid()}.png"
             board.create_board(winmine.get_board(), path_to_save)
 
     def __update_boards_img_loop(self):
@@ -126,10 +127,13 @@ class AttachToProcessScreen(QDialog):
                 self.__update_process_list()
             except RuntimeError:
                 pass
+        shutil.rmtree(f"img/boards_{self.__user.nickname}")
 
     def update(self) -> None:
         user_connection_manager.disconnect(self.__user)
         self.NameLabel.setText(self.__user.nickname)
+        if not os.path.exists(f'img/boards_{self.__user.nickname}'):
+            os.mkdir(f"img/boards_{self.__user.nickname}")
 
     def __remove_closed_processes_from_list(self):
         pid_list_in_table = []
@@ -150,7 +154,7 @@ class AttachToProcessScreen(QDialog):
         for pid in running_processes:
             if pid not in pid_list_in_table:
                 winmine = WinmineExe(pid)
-                img = f'<img src="img/boards/{pid}.png" size="{winmine.get_board_size()[1] * 8}" height="{winmine.get_board_size()[0] * 8}"/>'
+                img = f'<img src="img/boards_{self.__user.nickname}/{pid}.png" size="{winmine.get_board_size()[1] * 8}" height="{winmine.get_board_size()[0] * 8}"/>'
                 item = pyqt_manager.create_list_widget_item(repr(winmine), {WINMINE_INDEX: winmine, PID_INDEX: pid, IMG_INDEX: img})
                 self.ProcessList.addItem(item)
 
@@ -160,7 +164,7 @@ class AttachToProcessScreen(QDialog):
             winmine = item.data(WINMINE_INDEX)
             pid = item.data(PID_INDEX)
             current_text = repr(item.data(WINMINE_INDEX))
-            item.setData(3, f'<img src="img/boards/{pid}.png" size="{winmine.get_board_size()[1] * 8}" height="{winmine.get_board_size()[0] * 8}"/>')
+            item.setData(3, f'<img src="img/boards_{self.__user.nickname}/{pid}.png" size="{winmine.get_board_size()[1] * 8}" height="{winmine.get_board_size()[0] * 8}"/>')
             if item.text() != current_text:
                 item.setText(current_text)
 
