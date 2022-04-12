@@ -4471,7 +4471,7 @@ margin-left:1px;
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>../img/logout.png</normaloff>../img/logout.png</iconset>
+      <normaloff>../img/gui-icons/logout.png</normaloff>../img/gui-icons/logout.png</iconset>
     </property>
     <property name="iconSize">
      <size>

@@ -250,32 +250,43 @@ class CheatsScreen(QDialog):
         self.RevealBoardButton.setDisabled(is_disabled)
         self.ChangeBoardButton.setDisabled(is_disabled)
         self.ChangeBestTimesButton.setDisabled(is_disabled)
-        pass
 
     def __show_change_time_dialog(self):
-        change_time_dialog = ChangeTimeDialog(self.__winmine)
-        change_time_dialog.exec()
+        self.update()
+        if self.__winmine.get_pid() != DEFAULT_PID:
+            change_time_dialog = ChangeTimeDialog(self.__winmine)
+            change_time_dialog.exec()
 
     def __show_reveal_board_dialog(self):
-        reveal_board_dialog = RevealBoardDialog(self.__winmine)
-        reveal_board_dialog.exec()
+        self.update()
+        if self.__winmine.get_pid() != DEFAULT_PID:
+            reveal_board_dialog = RevealBoardDialog(self.__winmine)
+            reveal_board_dialog.exec()
 
     def __show_change_best_times_dialog(self):
-        change_best_times_dialog = ChangeBestTimesDialog(self.__winmine)
-        change_best_times_dialog.exec()
+        self.update()
+        if self.__winmine.get_pid() != DEFAULT_PID:
+            change_best_times_dialog = ChangeBestTimesDialog(self.__winmine)
+            change_best_times_dialog.exec()
 
     def __show_change_board_dialog(self):
-        change_board_dialog = ChangeBoardDialog(self.__winmine)
-        change_board_dialog.exec()
+        self.update()
+        if self.__winmine.get_pid() != DEFAULT_PID:
+            change_board_dialog = ChangeBoardDialog(self.__winmine)
+            change_board_dialog.exec()
 
     def __initialize_timer_button(self):
-        self.__winmine.change_timer(INITIALIZE_TIME)
+        self.update()
+        if self.__winmine.get_pid() != DEFAULT_PID:
+            self.__winmine.change_timer(INITIALIZE_TIME)
 
     def __active_timer_button(self):
-        if self.ActiveTimerButton.isChecked():
-            self.__winmine.start_timer()
-        else:
-            self.__winmine.stop_timer()
+        self.update()
+        if self.__winmine.get_pid() != DEFAULT_PID:
+            if self.ActiveTimerButton.isChecked():
+                self.__winmine.start_timer()
+            else:
+                self.__winmine.stop_timer()
 
 
 class ChangeTimeDialog(QDialog):
