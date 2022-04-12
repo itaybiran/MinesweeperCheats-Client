@@ -58,11 +58,14 @@ def add_square(board_img, square_img_path, x, y):
 
 
 def create_board(matrix_board=[[]], path_to_save=""):
-    board_img = init_board_img(SQUARE_SIZE_TOOLTIP * len(matrix_board[0]), SQUARE_SIZE_TOOLTIP * len(matrix_board))
-    for row in range(len(matrix_board)):
-        for column in range(len(matrix_board[row])):
-            add_square(board_img, SYMBOL_TO_IMG_PATH[str(matrix_board[row][column])], column * SQUARE_SIZE_TOOLTIP,
-                       row * SQUARE_SIZE_TOOLTIP)
-    if path_to_save != "":
-        board_img.save(path_to_save, "PNG")
-    return board_img
+    try:
+        board_img = init_board_img(SQUARE_SIZE_TOOLTIP * len(matrix_board[0]), SQUARE_SIZE_TOOLTIP * len(matrix_board))
+        for row in range(len(matrix_board)):
+            for column in range(len(matrix_board[row])):
+                add_square(board_img, SYMBOL_TO_IMG_PATH[str(matrix_board[row][column])], column * SQUARE_SIZE_TOOLTIP,
+                           row * SQUARE_SIZE_TOOLTIP)
+        if path_to_save != "":
+            board_img.save(path_to_save, "PNG")
+        return board_img
+    except:
+        pass

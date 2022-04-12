@@ -12,9 +12,9 @@ from PyQt5.uic import loadUi
 from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX, WINMINE_INDEX, SQUARE_SIZE, \
     REVEAL_BOARD_STARTING_X_POSITION, REVEAL_BOARD_STARTING_Y_POSITION, \
     CHANGE_BOARD_MIN_WIDTH, CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW, \
-    CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA, CHANGE_BOARD_UPPER_AREA_HEIGHT, CHANGE_BOARD_LOWER_AREA_HEIGHT,\
+    CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA, CHANGE_BOARD_UPPER_AREA_HEIGHT, CHANGE_BOARD_LOWER_AREA_HEIGHT, \
     CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_AREA, RUNNING_FLAG, MIN_NUM_OF_BOMBS, CHANGE_BOARD_FIX_ALIGNMENT, \
-    DEFAULT_PID, STATUS_CODE_OK, STATUS_CODE_BAD_REQUEST
+    DEFAULT_PID, STATUS_CODE_OK, STATUS_CODE_BAD_REQUEST, IMG_INDEX
 from utils import user_connection_manager, process_manager, board, calculates, pyqt_manager
 from utils.board import calculate_board, add_button
 from utils.memory import write_process_memory
@@ -95,7 +95,6 @@ class AttachToProcessScreen(QDialog):
         self.__winmine = winmine
         self.__window = window
         self.__user = user
-        self.__generated_images_list = []
         loadUi("gui/attach_to_process.ui", self)
         self.__init_screen_objects()
         threading.Thread(target=self.__update_boards_img_loop).start()
@@ -110,8 +109,6 @@ class AttachToProcessScreen(QDialog):
     def __create_board_img_in_background(self, winmine):
         if winmine is not None:
             path_to_save = f"./img/boards/{winmine.get_pid()}.png"
-            if path_to_save not in self.__generated_images_list:
-                self.__generated_images_list.append(path_to_save)
             board.create_board(winmine.get_board(), path_to_save)
 
     def __update_boards_img_loop(self):
@@ -126,12 +123,9 @@ class AttachToProcessScreen(QDialog):
                 for thread in thread_list:
                     thread.join()
                 time.sleep(0.1)
-                process_manager.update_pids_file()
                 self.__update_process_list()
             except RuntimeError:
                 pass
-        for img_path in self.__generated_images_list:
-            os.remove(img_path)
 
     def update(self) -> None:
         user_connection_manager.disconnect(self.__user)
@@ -141,7 +135,6 @@ class AttachToProcessScreen(QDialog):
         pid_list_in_table = []
         for index in range(self.ProcessList.count()):
             pid_list_in_table.append(self.ProcessList.item(index).data(PID_INDEX))
-
         running_processes = process_manager.get_all_pids()
         for index, pid in enumerate(pid_list_in_table):
             if pid not in running_processes:
@@ -153,26 +146,55 @@ class AttachToProcessScreen(QDialog):
         pid_list_in_table = []
         for index in range(self.ProcessList.count()):
             pid_list_in_table.append(self.ProcessList.item(index).data(PID_INDEX))
-
-        running_processes = process_manager.get_all_pids()
+        running_processes = process_manager.get_available_pids()
         for pid in running_processes:
             if pid not in pid_list_in_table:
                 winmine = WinmineExe(pid)
                 img = f'<img src="img/boards/{pid}.png" size="{winmine.get_board_size()[1] * 8}" height="{winmine.get_board_size()[0] * 8}"/>'
-                item = pyqt_manager.create_list_widget_item(repr(winmine), {WINMINE_INDEX: winmine, PID_INDEX: pid, 3: img})
+                item = pyqt_manager.create_list_widget_item(repr(winmine), {WINMINE_INDEX: winmine, PID_INDEX: pid, IMG_INDEX: img})
                 self.ProcessList.addItem(item)
 
     def __change_existing_running_processes_in_list(self):
         for index in range(self.ProcessList.count()):
             item = self.ProcessList.item(index)
+            winmine = item.data(WINMINE_INDEX)
+            pid = item.data(PID_INDEX)
             current_text = repr(item.data(WINMINE_INDEX))
+            item.setData(3, f'<img src="img/boards/{pid}.png" size="{winmine.get_board_size()[1] * 8}" height="{winmine.get_board_size()[0] * 8}"/>')
             if item.text() != current_text:
                 item.setText(current_text)
+
+    def __remove_duplicates(self):
+        pids_dict = {}
+        for index in range(self.ProcessList.count()):
+            if self.ProcessList.item(index).data(PID_INDEX) in pids_dict.keys():
+                pids_dict[self.ProcessList.item(index).data(PID_INDEX)] += 1
+            else:
+                pids_dict[self.ProcessList.item(index).data(PID_INDEX)] = 1
+        for pid in pids_dict.keys():
+            if pids_dict[pid] > 1:
+                for index in range(self.ProcessList.count()):
+                    item: QListWidgetItem = self.ProcessList.item(index)
+                    if item.data(PID_INDEX) == pid and item.icon() == QIcon(""):
+                        self.ProcessList.takeItem(item)
+                        break
 
     def __update_process_list(self):
         self.__remove_closed_processes_from_list()
         self.__add_new_running_processes_to_list()
         self.__change_existing_running_processes_in_list()
+        process_manager.update_pids_file()
+        self.__update_by_available_pid()
+        self.__remove_duplicates()
+
+    def __update_by_available_pid(self):
+        pid_list_in_table = []
+        for index in range(self.ProcessList.count()):
+            pid_list_in_table.append(self.ProcessList.item(index).data(PID_INDEX))
+        available_pids = process_manager.get_available_pids()
+        for index, pid in enumerate(pid_list_in_table):
+            if pid not in available_pids and pid != self.__winmine.get_pid():
+                self.ProcessList.takeItem(index)
 
     def __attach_to_process(self, current_item):
         for index in range(self.ProcessList.count()):
@@ -181,7 +203,7 @@ class AttachToProcessScreen(QDialog):
             process_manager.change_pid_status(self.__winmine.get_pid())
             self.__winmine.set_pid(current_item.data(PID_INDEX))
             process_manager.change_pid_status(current_item.data(PID_INDEX))
-            current_item.setIcon(QIcon("img/gui-icons/bomb-icon.png"))
+        current_item.setIcon(QIcon("img/gui-icons/bomb-icon.png"))
 
 
 class CheatsScreen(QDialog):

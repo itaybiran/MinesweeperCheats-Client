@@ -91,6 +91,20 @@ def does_exist(pid):
     return False
 
 
+def remove_duplicates_from_file():
+    pids_dict = {}
+    pids_in_file = get_all_pids_in_file()
+    for pid in pids_in_file:
+        if pid in pids_dict.keys():
+            pids_dict[pid] += 1
+        else:
+            pids_dict[pid] = 1
+    for pid in pids_dict.keys():
+        if pids_dict[pid] > 1:
+            remove_pid_from_file(pid)
+            break
+
+
 def update_pids_file():
     """A function that updates the pids file (removes pids of processes that are not running anymore,
         and adds the pid of new running processes)."""
@@ -103,6 +117,7 @@ def update_pids_file():
     for pid in pids_in_file:
         if int(pid) not in running_processes:
             remove_pid_from_file(pid)
+    remove_duplicates_from_file()
 
 
 def get_winmines(pid_lst) -> list[WinmineExe]:
