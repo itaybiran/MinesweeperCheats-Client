@@ -1462,11 +1462,11 @@ color: white;
      <string>Change Best Times</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="ActiveTimerButton">
+   <widget class="QPushButton" name="StartTimerButton">
     <property name="geometry">
      <rect>
-      <x>541</x>
-      <y>131</y>
+      <x>536</x>
+      <y>116</y>
       <width>95</width>
       <height>20</height>
      </rect>
@@ -1486,7 +1486,17 @@ color: white;
 background:rgba(0,0,0,0);</string>
     </property>
     <property name="text">
-     <string>Active Timer</string>
+     <string>Start Timer</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>../img/gui-icons/play.png</normaloff>../img/gui-icons/play.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>20</width>
+      <height>20</height>
+     </size>
     </property>
    </widget>
    <widget class="QPushButton" name="RevealBoardButton">
@@ -4481,6 +4491,43 @@ margin-left:1px;
     </property>
     <property name="shortcut">
      <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="StopTimerButton">
+    <property name="geometry">
+     <rect>
+      <x>535</x>
+      <y>147</y>
+      <width>95</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Black</family>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>ClosedHandCursor</cursorShape>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:white;
+background:rgba(0,0,0,0);</string>
+    </property>
+    <property name="text">
+     <string>Stop Timer</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>../img/gui-icons/pause.png</normaloff>../img/gui-icons/pause.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>22</width>
+      <height>22</height>
+     </size>
     </property>
    </widget>
   </widget>

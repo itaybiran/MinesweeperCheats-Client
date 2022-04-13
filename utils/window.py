@@ -3,6 +3,7 @@ import time
 
 from PyQt5.QtWidgets import QStackedWidget
 from constants import WIDTH, HEIGHT
+from utils import user_connection_manager
 from utils.screens_and_dialogs import LoginScreen, CheatsScreen, MultiplayerScreen, SignupScreen, AttachToProcessScreen
 from utils.user import User
 from utils.winmine_exe import WinmineExe
@@ -46,5 +47,6 @@ class Window:
         self.__widget.setCurrentIndex(self.__widget.currentIndex() + 1)
 
     def show_login_screen(self):
+        user_connection_manager.disconnect_http(self.__user)
         self.__widget.addWidget(self.__login_screen)
         self.__widget.setCurrentIndex(self.__widget.currentIndex() + 1)

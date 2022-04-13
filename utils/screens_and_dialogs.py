@@ -13,7 +13,7 @@ from PyQt5.uic import loadUi
 from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX, WINMINE_INDEX, SQUARE_SIZE, \
     REVEAL_BOARD_STARTING_X_POSITION, REVEAL_BOARD_STARTING_Y_POSITION, \
     CHANGE_BOARD_MIN_WIDTH, CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW, \
-    CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA, CHANGE_BOARD_UPPER_AREA_HEIGHT, CHANGE_BOARD_LOWER_AREA_HEIGHT, \
+    CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA, CHANGE_BOARD_UPPER_AREA_HEIGHT, CHANGE_BOARD_LOWER_AREA_HEIGHT,\
     CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_AREA, RUNNING_FLAG, MIN_NUM_OF_BOMBS, CHANGE_BOARD_FIX_ALIGNMENT, \
     DEFAULT_PID, STATUS_CODE_OK, STATUS_CODE_BAD_REQUEST, IMG_INDEX
 from utils import user_connection_manager, process_manager, board, calculates, pyqt_manager
@@ -30,7 +30,7 @@ class LoginScreen(QDialog):
         self.__user = user
         self.__window = window
         loadUi("gui/login.ui", self)
-        user_connection_manager.disconnect(self.__user)
+        user_connection_manager.disconnect_http(self.__user)
         self.__init_screen_objects()
 
     def __init_screen_objects(self):
@@ -131,7 +131,7 @@ class AttachToProcessScreen(QDialog):
             shutil.rmtree(f"img/boards_{self.__user.nickname}")
 
     def update(self) -> None:
-        user_connection_manager.disconnect(self.__user)
+        user_connection_manager.disconnect_ws(self.__user)
         self.NameLabel.setText(self.__user.nickname)
         if not os.path.exists(f'img/boards_{self.__user.nickname}'):
             os.mkdir(f"img/boards_{self.__user.nickname}")
@@ -223,14 +223,23 @@ class CheatsScreen(QDialog):
     def __init_screen_objects(self):
         self.ChangeTimeButton.clicked.connect(self.__show_change_time_dialog)
         self.InitializeTimerButton.clicked.connect(self.__initialize_timer_button)
-        self.ActiveTimerButton.toggled.connect(self.__active_timer_button)
         self.RevealBoardButton.clicked.connect(self.__show_reveal_board_dialog)
         self.ChangeBestTimesButton.clicked.connect(self.__show_change_best_times_dialog)
         self.ChangeBoardButton.clicked.connect(self.__show_change_board_dialog)
         self.MultiplayerButton.clicked.connect(self.__window.show_multiplayer_screen)
         self.ProcessButton.clicked.connect(self.__window.show_process_screen)
         self.LogoutButton.clicked.connect(self.__window.show_login_screen)
-        self.ActiveTimerButton.setChecked(True)
+        self.StartTimerButton.clicked.connect(self.__start_timer)
+        self.StopTimerButton.clicked.connect(self.__stop_timer)
+
+    def set_buttons_status(self, is_disabled):
+        self.ChangeTimeButton.setDisabled(is_disabled)
+        self.InitializeTimerButton.setDisabled(is_disabled)
+        self.StartTimerButton.setDisabled(is_disabled)
+        self.StopTimerButton.setDisabled(is_disabled)
+        self.RevealBoardButton.setDisabled(is_disabled)
+        self.ChangeBoardButton.setDisabled(is_disabled)
+        self.ChangeBestTimesButton.setDisabled(is_disabled)
 
     def update(self) -> None:
         if self.__winmine.get_pid() == DEFAULT_PID:
@@ -239,18 +248,16 @@ class CheatsScreen(QDialog):
         else:
             self.ErrorLabel.setText("")
             self.set_buttons_status(False)
-        user_connection_manager.disconnect(self.__user)
+        user_connection_manager.disconnect_ws(self.__user)
         self.NameLabel.setText(self.__user.nickname)
         self.RankLabel.setText("Rank: " + str(self.__user.rank))
         self.XpLabel.setText("Xp: " + str(self.__user.xp))
 
-    def set_buttons_status(self, is_disabled):
-        self.ChangeTimeButton.setDisabled(is_disabled)
-        self.InitializeTimerButton.setDisabled(is_disabled)
-        self.ActiveTimerButton.setDisabled(is_disabled)
-        self.RevealBoardButton.setDisabled(is_disabled)
-        self.ChangeBoardButton.setDisabled(is_disabled)
-        self.ChangeBestTimesButton.setDisabled(is_disabled)
+    def __start_timer(self):
+        self.__winmine.start_timer()
+
+    def __stop_timer(self):
+        self.__winmine.stop_timer()
 
     def __show_change_time_dialog(self):
         self.update()
@@ -280,14 +287,6 @@ class CheatsScreen(QDialog):
         self.update()
         if self.__winmine.get_pid() != DEFAULT_PID:
             self.__winmine.change_timer(INITIALIZE_TIME)
-
-    def __active_timer_button(self):
-        self.update()
-        if self.__winmine.get_pid() != DEFAULT_PID:
-            if self.ActiveTimerButton.isChecked():
-                self.__winmine.start_timer()
-            else:
-                self.__winmine.stop_timer()
 
 
 class ChangeTimeDialog(QDialog):
@@ -542,13 +541,13 @@ class MultiplayerScreen(QDialog):
     def __connect(self):
         if self.__user.ws == "" or not self.__user.ws.keep_running:
             self.ErrorLabel.setText("")
-            self.ConnectButton.setText("Disconnect")
+            self.ConnectButton.setText("disconnect")
             self.ConnectingLabel.setText("Connecting...")
             self.__user.ws = websocket.WebSocketApp(
                 f"ws://127.0.0.1:8000/ws?nickname={self.__user.nickname}&rank={self.__user.rank}&difficulty=0",
                 header={"Authorization": self.__user.token}, on_message=self.__on_message)
             self.thread = threading.Thread(target=self.__user.ws.run_forever)
             self.thread.start()
-        elif self.ConnectButton.text() == "Disconnect":
-            user_connection_manager.disconnect(self.__user)
+        elif self.ConnectButton.text() == "disconnect":
+            user_connection_manager.disconnect_ws(self.__user)
             self.update()

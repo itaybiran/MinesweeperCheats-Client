@@ -2,7 +2,7 @@ import sys
 import requests
 from PyQt5.QtWidgets import QApplication
 from constants import SERVER_URL
-from utils import process_manager
+from utils import process_manager, user_connection_manager
 from utils.user import User
 from utils.window import Window
 from utils.winmine_exe import WinmineExe
@@ -30,5 +30,6 @@ class Program:
         process_manager.change_pid_status(self.__winmine.get_pid())
         if self.__user.ws and self.__user.ws.keep_running:
             self.__user.ws.close()
-        requests.post(f"{SERVER_URL}/disconnect", headers={"Authorization": self.__user.token}).json()
+        user_connection_manager.disconnect_ws(self.__user)
+        user_connection_manager.disconnect_http(self.__user)
         sys.exit()
