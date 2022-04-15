@@ -1,7 +1,9 @@
 
 from winreg import REG_DWORD, REG_SZ
 
+
 # windows
+
 WIDTH = 700
 HEIGHT = 400
 PID_INDEX = 9
@@ -23,7 +25,14 @@ CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_AREA = 10
 CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA = 20
 CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW = 30
 
+NUMBER_OF_SECONDS_TO_COUNT_DOWN = 6
+
+LOST = 0
+WON = 1
+
 # winmine consts
+CLICKED = 1
+NOT_CLICKED = 0
 MAX_TIME = 999
 MIN_TIME = 0
 INITIALIZE_TIME = 0
@@ -80,7 +89,7 @@ VALUE_TO_SYMBOL = {0x8E: "RIGHT_FLAG",
                    }
 
 START_GAME_SQUARES = ["HIDDEN_BOMB", "SAFE_PLACE", "QUESTION_MARK", "WRONG_FLAG", "RIGHT_FLAG"]
-RIGHT_CLICKS_SQUARES = ["EMPTY_SQUARE", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"]
+RIGHT_CLICKS_SQUARES = ["EMPTY_SQUARE", "RIGHT_FLAG", "WRONG_FLAG", "QUESTION_MARK", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"]
 
 UNUSED_AREA = 0x0F
 BOUNDARY = 0x10
@@ -153,6 +162,10 @@ NUMBER_TO_ICON = {
     "bomb": "./img/board-icons/bomb.png",
     "button": "./img/board-icons/button.png"
 }
+MODE_TO_NUMBER_OF_BOMBS = {EASY_MODE: 10,
+                           INTIMIDATE_MODE: 40,
+                           EXPERT_MODE: 99
+                           }
 
 # process manager
 

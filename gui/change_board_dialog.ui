@@ -155,7 +155,7 @@ border-radius:20px;
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>../img/refresh.png</normaloff>../img/refresh.png</iconset>
+      <normaloff>../img/gui-icons/refresh.png</normaloff>../img/gui-icons/refresh.png</iconset>
     </property>
     <property name="iconSize">
      <size>

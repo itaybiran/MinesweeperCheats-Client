@@ -34,7 +34,10 @@ class WinmineExe(object):
     def start_timer(self):
         write_process_memory(self.__pid, TIMER_FLAG, 1, 1)
 
-    def get_board(self):
+    def is_time_running(self):
+        return read_process_memory(self.__pid, TIMER_FLAG, 1)
+
+    def get_board(self) -> list[list]:
         """A function that returns a matrix represents the board."""
         board = [[]]
         height, width = self.get_board_size()
@@ -106,7 +109,7 @@ class WinmineExe(object):
         return read_process_memory(self.__pid, NUMBER_OF_BOMBS_ADDRESS, 1)
 
     def set_number_of_bombs(self, new_number_of_bombs):
-        write_process_memory(self.__pid, 0x010056A4, new_number_of_bombs, 1)
+        # write_process_memory(self.__pid, 0x010056A4, new_number_of_bombs, 1)
         write_process_memory(self.__pid, NUMBER_OF_BOMBS_ADDRESS, new_number_of_bombs, 1)
         write_process_memory(self.__pid, INIT_NUMBER_OF_BOMBS_ADDRESS, new_number_of_bombs, 1)
         write_process_memory(self.__pid, NUMBER_OF_SAFE_PLACES_ADDRESS, self.get_board_size()[0]*self.get_board_size()[1] - new_number_of_bombs, 2)
@@ -114,12 +117,12 @@ class WinmineExe(object):
     def count_backward(self, start):
         cur_time = start
         self.change_timer(cur_time)
-        t = threading.Thread(target=self.ignore_click, args=[self.__pid])
+        t = threading.Thread(target=self.ignore_click)
         t.start()
+        self.stop_timer()
         while cur_time > 0:
-            self.stop_timer()
             self.change_timer(cur_time - 1)
-            self.start_timer()
+            self.redraw_window()
             cur_time -= 1
             time.sleep(1)
         t.join()
@@ -149,8 +152,15 @@ class WinmineExe(object):
                     return False
         return status_game_by_memory
 
-    def restart_game(self, board):
-        self.set_number_of_bombs(calculates.calculate_number_of_bombs(board))
+    def set_in_middle_of_game(self, in_middle_of_game: bool):
+        if in_middle_of_game:
+            flag = 0x01
+        else:
+            flag = 0x10
+        write_process_memory(self.__pid, RUNNING_FLAG, flag, 1)
+
+    def restart_game(self, board, number_of_bombs):
+        self.set_number_of_bombs(number_of_bombs)
         self.set_board(board)
         self.change_timer(0)
         self.start_timer()
@@ -183,6 +193,22 @@ The test code runs up a notepad session using subprocess and passes its pid alon
         hwnds = []
         win32gui.EnumWindows(callback, hwnds)
         return hwnds[0]
+
+    def get_clicked_squares(self):
+        number_of_clicks = 0
+        board = self.get_board()
+        clicked_board = [[]]
+        for row in range(len(board)):
+            for column in range(len(board[0])):
+                if board[row][column] in RIGHT_CLICKS_SQUARES:
+                    number_of_clicks += 1
+                    clicked_board[row].append(CLICKED)
+                else:
+                    clicked_board[row].append(NOT_CLICKED)
+            clicked_board.append([])
+        clicked_board.pop()
+        return clicked_board, number_of_clicks
+
 
     def __repr__(self):
         return f"Pid: {self.__pid}           Mode: {NUMBER_TO_MODE[str(self.get_mode())]}           Size: {self.get_board_size()[0]} on {self.get_board_size()[1]}           Number Of Bombs: {self.get_number_of_bombs()}"

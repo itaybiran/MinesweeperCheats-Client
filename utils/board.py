@@ -1,6 +1,9 @@
+import random
+
 from PyQt5.QtGui import QIcon
 from PIL import Image
 from constants import NUMBER_TO_ICON, SQUARE_SIZE_TOOLTIP, SYMBOL_TO_IMG_PATH, SQUARE_BUTTON_SIZE
+
 from utils.button import CustomButton
 
 

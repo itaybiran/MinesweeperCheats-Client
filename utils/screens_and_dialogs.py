@@ -13,12 +13,13 @@ from PyQt5.uic import loadUi
 from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX, WINMINE_INDEX, SQUARE_SIZE, \
     REVEAL_BOARD_STARTING_X_POSITION, REVEAL_BOARD_STARTING_Y_POSITION, \
     CHANGE_BOARD_MIN_WIDTH, CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW, \
-    CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA, CHANGE_BOARD_UPPER_AREA_HEIGHT, CHANGE_BOARD_LOWER_AREA_HEIGHT,\
+    CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA, CHANGE_BOARD_UPPER_AREA_HEIGHT, CHANGE_BOARD_LOWER_AREA_HEIGHT, \
     CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_AREA, RUNNING_FLAG, MIN_NUM_OF_BOMBS, CHANGE_BOARD_FIX_ALIGNMENT, \
-    DEFAULT_PID, STATUS_CODE_OK, STATUS_CODE_BAD_REQUEST, IMG_INDEX
+    DEFAULT_PID, STATUS_CODE_OK, STATUS_CODE_BAD_REQUEST, IMG_INDEX, NUMBER_OF_SECONDS_TO_COUNT_DOWN, \
+    MODE_TO_NUMBER_OF_BOMBS, CUSTOM_MODE, WON, LOST
 from utils import user_connection_manager, process_manager, board, calculates, pyqt_manager
 from utils.board import calculate_board, add_button
-from utils.memory import write_process_memory
+from utils.memory import write_process_memory, read_process_memory
 from utils.message import MessageTypeEnum
 from utils.user import User, set_user
 from utils.winmine_exe import WinmineExe
@@ -48,6 +49,8 @@ class LoginScreen(QDialog):
                 show_process_screen()
             elif response.status_code == STATUS_CODE_BAD_REQUEST:
                 self.ErrorLabel.setText("Wrong username or password")
+            elif response.status_code == 400:
+                self.ErrorLabel.setText("User is already logged in")
         else:
             self.ErrorLabel.setText("Please fill all fields")
 
@@ -412,7 +415,7 @@ class ChangeBoardDialog(QDialog):
             if self.__winmine.is_in_middle_of_game():
                 if self.__bombs_counter >= MIN_NUM_OF_BOMBS:
                     print(self.__get_new_board())
-                    self.__winmine.restart_game(self.__get_new_board())
+                    self.__winmine.restart_game(self.__get_new_board(), calculates.calculate_number_of_bombs(board))
                     write_process_memory(self.__winmine.get_pid(), RUNNING_FLAG, 1, 1)
                     self.ErrorLabel.setText("")
                 else:
@@ -493,7 +496,7 @@ class MultiplayerScreen(QDialog):
         self.NameLabel.setText(self.__user.nickname)
 
     def update(self) -> None:
-        if self.__winmine.get_pid() == 0:
+        if self.__winmine.get_pid() == DEFAULT_PID:
             self.ErrorLabel.setText("Cannot use multiplayer until a process is attached")
             self.set_buttons_status(True)
         else:
@@ -524,9 +527,15 @@ class MultiplayerScreen(QDialog):
         elif message["type"] == MessageTypeEnum.points:
             self.OpponentPointsLabel.setText(str(message["data"]) + " / " + str(self.__number_of_safe_squares))
         elif message["type"] == MessageTypeEnum.board:
-            if self.__opponent_board != message["data"]:
-                print(message["data"])
             self.__opponent_board = message["data"]
+        elif message["type"] == MessageTypeEnum.init_board:
+            self.__initialize_multiplayer_game(message["data"])
+            threading.Thread(target=self.__is_loser_or_winner).start()
+
+    def __initialize_multiplayer_game(self, board):
+        self.__winmine.restart_game(board, MODE_TO_NUMBER_OF_BOMBS[self.__winmine.get_mode()])
+        self.__winmine.count_backward(NUMBER_OF_SECONDS_TO_COUNT_DOWN)
+        self.__winmine.start_timer()
 
     def __send_message_with_protocol(self, data: str, message_type: str):
         self.__user.ws.send(json.dumps({"data": data, "type": message_type}))
@@ -546,24 +555,65 @@ class MultiplayerScreen(QDialog):
 
     def __update_game_points(self):
         while self.__user.ws.keep_running:
-            self.__send_message_with_protocol(str(calculates.calculate_number_of_right_clicks(self.__winmine.get_board())), "points")
-            self.__send_message_with_protocol(str(self.__winmine.get_board()), "board")
+            data = self.__winmine.get_clicked_squares()
+            self.__send_message_with_protocol(str(data[1]), "points")
+            self.__send_message_with_protocol(str(data[0]), "board")
             time.sleep(1)
+
+    def __is_loser_or_winner(self):
+        while self.__user.ws.keep_running:
+            if not self.__winmine.is_time_running():
+                if not self.__winmine.is_in_middle_of_game():
+                    if self.__did_player_lose():
+                        print(str(LOST))
+                    else:
+                        print(str(WON))
+                else:
+                    print(str(LOST))
+                user_connection_manager.disconnect_ws(self.__user)
+            time.sleep(0.1)
+
+    def __did_player_lose(self):
+        current_board = self.__winmine.get_board()
+        print(current_board)
+        for row in range(len(current_board)):
+            for column in range(len(current_board[0])):
+                if current_board[row][column] == "BOMB_YOU_TOUCHED":
+                    return True
+        return False
 
     def __on_message(self, ws, message):
         self.__handle_received_message(message)
 
     def __connect(self):
-        self.__number_of_safe_squares = calculates.calculate_number_of_safe_squares(self.__winmine.get_board())
-        if self.__user.ws == "" or not self.__user.ws.keep_running:
-            self.ErrorLabel.setText("")
-            self.ConnectButton.setText("disconnect")
-            self.ConnectingLabel.setText("Connecting...")
-            self.__user.ws = websocket.WebSocketApp(
-                f"ws://127.0.0.1:8000/ws?nickname={self.__user.nickname}&rank={self.__user.rank}&difficulty=0",
-                header={"Authorization": self.__user.token}, on_message=self.__on_message)
-            self.thread = threading.Thread(target=self.__user.ws.run_forever)
-            self.thread.start()
-        elif self.ConnectButton.text() == "disconnect":
-            user_connection_manager.disconnect_ws(self.__user)
-            self.update()
+        if self.__winmine.get_pid() != DEFAULT_PID:
+            self.set_buttons_status(False)
+            if self.__winmine.get_mode() != CUSTOM_MODE:
+                if self.__winmine.is_in_middle_of_game():
+                    self.__number_of_safe_squares = calculates.calculate_number_of_safe_squares(self.__winmine.get_board())
+                    if self.__user.ws == "" or not self.__user.ws.keep_running:
+                        self.ErrorLabel.setText("")
+                        self.ConnectButton.setText("disconnect")
+                        self.ConnectingLabel.setText("Connecting...")
+                        self.__user.ws = websocket.WebSocketApp(
+                            f"ws://127.0.0.1:8000/ws?nickname={self.__user.nickname}&rank={self.__user.rank}&difficulty={self.__winmine.get_mode()}",
+                            header={"Authorization": self.__user.token}, on_message=self.__on_message)
+                        self.thread = threading.Thread(target=self.__user.ws.run_forever)
+                        self.thread.start()
+                    elif self.ConnectButton.text() == "disconnect":
+                        user_connection_manager.disconnect_ws(self.__user)
+                        self.update()
+                else:
+                    self.ErrorLabel.setText("Please click the smiley button")
+            else:
+                self.ErrorLabel.setText("Please Choose Different Mode")
+        else:
+            self.ErrorLabel.setText("Cannot use multiplayer until a process is attached")
+            self.set_buttons_status(True)
+
+
+class DisconnectDialog(QDialog):
+    def __init__(self, window):
+        super(DisconnectDialog, self).__init__()
+        self.__window = window
+        loadUi("gui/disconnect_dialog.ui", self)

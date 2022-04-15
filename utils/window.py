@@ -4,7 +4,8 @@ import time
 from PyQt5.QtWidgets import QStackedWidget
 from constants import WIDTH, HEIGHT
 from utils import user_connection_manager
-from utils.screens_and_dialogs import LoginScreen, CheatsScreen, MultiplayerScreen, SignupScreen, AttachToProcessScreen
+from utils.screens_and_dialogs import LoginScreen, CheatsScreen, MultiplayerScreen, SignupScreen, AttachToProcessScreen, \
+    DisconnectDialog
 from utils.user import User
 from utils.winmine_exe import WinmineExe
 
@@ -20,6 +21,7 @@ class Window:
         self.__cheats_screen = CheatsScreen(self.__winmine, self.__user, self)
         self.__multiplayer_screen = MultiplayerScreen(self.__winmine, self.__user, self)
         self.__process_screen = AttachToProcessScreen(self.__winmine, self.__user, self)
+        self.__disconnect_screen = DisconnectDialog(self)
         self.__set_window_size(WIDTH, HEIGHT)
         self.__widget.show()
 
@@ -48,5 +50,10 @@ class Window:
 
     def show_login_screen(self):
         user_connection_manager.disconnect_http(self.__user)
+        user_connection_manager.disconnect_ws(self.__user)
         self.__widget.addWidget(self.__login_screen)
+        self.__widget.setCurrentIndex(self.__widget.currentIndex() + 1)
+
+    def show_disconnect_screen(self):
+        self.__widget.addWidget(self.__disconnect_screen)
         self.__widget.setCurrentIndex(self.__widget.currentIndex() + 1)

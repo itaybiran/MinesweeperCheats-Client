@@ -7,6 +7,7 @@ class MessageTypeEnum(str, Enum):
     opponent_data = 'opponent_data'
     points = 'points'
     board = 'board'
+    init_board = "init_board"
     time = 'time'
 
 
