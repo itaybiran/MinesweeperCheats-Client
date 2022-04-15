@@ -479,6 +479,8 @@ class MultiplayerScreen(QDialog):
         self.__window = window
         self.__user = user
         self.__messages = []
+        self.__number_of_safe_squares = 0
+        self.__opponent_board = [[]]
         loadUi("gui/multiplayer.ui", self)
         self.__init_screen_objects()
 
@@ -518,6 +520,13 @@ class MultiplayerScreen(QDialog):
         elif message["type"] == MessageTypeEnum.opponent_data:
             self.OpponentNameLabel.setText(message["data"]["nickname"])
             self.OpponentRankLabel.setText(str(message["data"]["rank"]))
+            threading.Thread(target=self.__update_game_points).start()
+        elif message["type"] == MessageTypeEnum.points:
+            self.OpponentPointsLabel.setText(str(message["data"]) + " / " + str(self.__number_of_safe_squares))
+        elif message["type"] == MessageTypeEnum.board:
+            if self.__opponent_board != message["data"]:
+                print(message["data"])
+            self.__opponent_board = message["data"]
 
     def __send_message_with_protocol(self, data: str, message_type: str):
         self.__user.ws.send(json.dumps({"data": data, "type": message_type}))
@@ -535,10 +544,17 @@ class MultiplayerScreen(QDialog):
         else:
             self.ErrorLabel.setText("find an opponent first")
 
+    def __update_game_points(self):
+        while self.__user.ws.keep_running:
+            self.__send_message_with_protocol(str(calculates.calculate_number_of_right_clicks(self.__winmine.get_board())), "points")
+            self.__send_message_with_protocol(str(self.__winmine.get_board()), "board")
+            time.sleep(1)
+
     def __on_message(self, ws, message):
         self.__handle_received_message(message)
 
     def __connect(self):
+        self.__number_of_safe_squares = calculates.calculate_number_of_safe_squares(self.__winmine.get_board())
         if self.__user.ws == "" or not self.__user.ws.keep_running:
             self.ErrorLabel.setText("")
             self.ConnectButton.setText("disconnect")

@@ -2556,7 +2556,7 @@ color: white;
    <widget class="QLabel" name="OpponentNameLabel">
     <property name="geometry">
      <rect>
-      <x>550</x>
+      <x>600</x>
       <y>20</y>
       <width>71</width>
       <height>41</height>
@@ -3085,7 +3085,7 @@ QPushButton
    <widget class="QLabel" name="OpponentRankLabel">
     <property name="geometry">
      <rect>
-      <x>550</x>
+      <x>600</x>
       <y>70</y>
       <width>71</width>
       <height>41</height>
@@ -3188,6 +3188,35 @@ color:white;</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QLabel" name="OpponentPointsLabel">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>120</y>
+      <width>71</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Black</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:transparent;
+color:white;
+border:0</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
    <zorder>ConnectButton</zorder>
    <zorder>InfoLabel</zorder>
    <zorder>ConnectingLabel</zorder>
@@ -3204,6 +3233,7 @@ color:white;</string>
    <zorder>ChatField</zorder>
    <zorder>SendButton</zorder>
    <zorder>ChatLabel</zorder>
+   <zorder>OpponentPointsLabel</zorder>
   </widget>
  </widget>
  <resources/>

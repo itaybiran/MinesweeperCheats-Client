@@ -20,12 +20,12 @@ class Program:
         self.__window.show_login_screen()
         try:
             self.__app.exec_()
-            self.__exit()
+            self.exit()
         except Exception as e:
             print(e)
-            self.__exit()
+            self.exit()
 
-    def __exit(self):
+    def exit(self):
         self.__is_running[0] = False
         process_manager.change_pid_status(self.__winmine.get_pid())
         if self.__user.ws and self.__user.ws.keep_running:
