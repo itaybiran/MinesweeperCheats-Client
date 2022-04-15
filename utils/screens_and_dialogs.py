@@ -13,13 +13,13 @@ from PyQt5.uic import loadUi
 from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX, WINMINE_INDEX, SQUARE_SIZE, \
     REVEAL_BOARD_STARTING_X_POSITION, REVEAL_BOARD_STARTING_Y_POSITION, \
     CHANGE_BOARD_MIN_WIDTH, CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW, \
-    CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA, CHANGE_BOARD_UPPER_AREA_HEIGHT, CHANGE_BOARD_LOWER_AREA_HEIGHT, \
+    CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA, CHANGE_BOARD_UPPER_AREA_HEIGHT, CHANGE_BOARD_LOWER_AREA_HEIGHT,\
     CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_AREA, RUNNING_FLAG, MIN_NUM_OF_BOMBS, CHANGE_BOARD_FIX_ALIGNMENT, \
     DEFAULT_PID, STATUS_CODE_OK, STATUS_CODE_BAD_REQUEST, IMG_INDEX, NUMBER_OF_SECONDS_TO_COUNT_DOWN, \
-    MODE_TO_NUMBER_OF_BOMBS, CUSTOM_MODE, WON, LOST
+    MODE_TO_NUMBER_OF_BOMBS, CUSTOM_MODE, WON, LOST, DISCONNECT_TIME
 from utils import user_connection_manager, process_manager, board, calculates, pyqt_manager
 from utils.board import calculate_board, add_button
-from utils.memory import write_process_memory, read_process_memory
+from utils.memory import write_process_memory
 from utils.message import MessageTypeEnum
 from utils.user import User, set_user
 from utils.winmine_exe import WinmineExe
@@ -30,15 +30,25 @@ class LoginScreen(QDialog):
         super(LoginScreen, self).__init__()
         self.__user = user
         self.__window = window
+        self.secs = 0
         loadUi("gui/login.ui", self)
         user_connection_manager.disconnect_http(self.__user)
         self.__init_screen_objects()
+        self.__init_disconnect_timer()
+
+    def update(self) -> None:
+        if self.connected_thread.is_alive():
+            self.connected_thread.cancel()
+
+    def __init_disconnect_timer(self):
+        self.connected_thread = threading.Timer(DISCONNECT_TIME, self.__window.show_disconnect_screen)
+        self.connected_thread.start()
 
     def __init_screen_objects(self):
-        self.LoginButton.clicked.connect(lambda: self.__is_valid(self.__window.show_process_screen))
+        self.LoginButton.clicked.connect(self.__is_valid)
         self.NewUserButton.clicked.connect(self.__window.show_signup_screen)
 
-    def __is_valid(self, show_process_screen):
+    def __is_valid(self):
         username = self.UsernameField.text()
         password = self.PasswordField.text()
         if username and password:
@@ -46,7 +56,8 @@ class LoginScreen(QDialog):
             if response.status_code == STATUS_CODE_OK:
                 token = response.json()["token_type"] + " " + response.json()["access_token"]
                 set_user(token, self.__user)
-                show_process_screen()
+                self.__init_disconnect_timer()
+                self.__window.show_process_screen()
             elif response.status_code == STATUS_CODE_BAD_REQUEST:
                 self.ErrorLabel.setText("Wrong username or password")
             elif response.status_code == 400:
@@ -617,3 +628,4 @@ class DisconnectDialog(QDialog):
         super(DisconnectDialog, self).__init__()
         self.__window = window
         loadUi("gui/disconnect_dialog.ui", self)
+        self.DisconnectButton.clicked.connect(self.__window.show_login_screen)

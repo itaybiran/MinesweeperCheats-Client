@@ -51,6 +51,7 @@ class Window:
     def show_login_screen(self):
         user_connection_manager.disconnect_http(self.__user)
         user_connection_manager.disconnect_ws(self.__user)
+        self.__login_screen.update()
         self.__widget.addWidget(self.__login_screen)
         self.__widget.setCurrentIndex(self.__widget.currentIndex() + 1)
 
