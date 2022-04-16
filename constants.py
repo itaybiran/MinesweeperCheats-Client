@@ -64,6 +64,7 @@ FLAGS_LEFT_COUNTER = 0x01005194
 BOARD_TOP_LEFT_CORNER = 0x01005361
 BOARD_BOUNDARY_TOP_LEFT_CORNER_ADDRESS = 0x01005340
 LAST_MEMORY_REPRESENTING_BOARD = 0x0100569F
+IMPORTANT = 0x01005118
 
 VALUE_TO_SYMBOL = {0x8E: "RIGHT_FLAG",
                    0x0E: "WRONG_FLAG",
@@ -149,6 +150,7 @@ SYMBOL_TO_IMG_PATH = {
     "WRONG_FLAG": "./img/board-icons/flag.png",
     "QUESTION_MARK": "./img/board-icons/question_mark.png"
 }
+
 NUMBER_TO_ICON = {
     "0": "./img/board-icons/empty.png",
     "1": "./img/board-icons/one.png",
@@ -180,4 +182,4 @@ NOT_AVAILABLE = "1"
 SERVER_URL = "http://127.0.0.1:8000"
 STATUS_CODE_OK = 200
 STATUS_CODE_BAD_REQUEST = 401
-DISCONNECT_TIME = 3600
+RECONNECT_TIME = 7200

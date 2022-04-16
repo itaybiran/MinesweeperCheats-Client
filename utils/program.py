@@ -32,4 +32,5 @@ class Program:
             self.__user.ws.close()
         user_connection_manager.disconnect_ws(self.__user)
         user_connection_manager.disconnect_http(self.__user)
+        self.__window.cancel_reconnect_timer()
         sys.exit()

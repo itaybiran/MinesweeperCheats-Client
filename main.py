@@ -3,8 +3,8 @@ from utils.program import Program
 
 
 def main():
+    program = Program()
     try:
-        program = Program()
         program.run()
     except Exception as e:
         print(e)

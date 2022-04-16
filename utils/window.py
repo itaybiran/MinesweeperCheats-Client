@@ -1,8 +1,7 @@
 import threading
-import time
 
 from PyQt5.QtWidgets import QStackedWidget
-from constants import WIDTH, HEIGHT
+from constants import WIDTH, HEIGHT, RECONNECT_TIME
 from utils import user_connection_manager
 from utils.screens_and_dialogs import LoginScreen, CheatsScreen, MultiplayerScreen, SignupScreen, AttachToProcessScreen, \
     DisconnectDialog
@@ -21,7 +20,8 @@ class Window:
         self.__cheats_screen = CheatsScreen(self.__winmine, self.__user, self)
         self.__multiplayer_screen = MultiplayerScreen(self.__winmine, self.__user, self)
         self.__process_screen = AttachToProcessScreen(self.__winmine, self.__user, self)
-        self.__disconnect_screen = DisconnectDialog(self)
+        self.__reconnect_screen = DisconnectDialog(self.__user, self)
+        self.connected_thread = threading.Timer(RECONNECT_TIME, self.show_reconnect_screen)
         self.__set_window_size(WIDTH, HEIGHT)
         self.__widget.show()
 
@@ -51,10 +51,23 @@ class Window:
     def show_login_screen(self):
         user_connection_manager.disconnect_http(self.__user)
         user_connection_manager.disconnect_ws(self.__user)
-        self.__login_screen.update()
+        self.cancel_reconnect_timer()
         self.__widget.addWidget(self.__login_screen)
         self.__widget.setCurrentIndex(self.__widget.currentIndex() + 1)
 
-    def show_disconnect_screen(self):
-        self.__widget.addWidget(self.__disconnect_screen)
+    def show_reconnect_screen(self):
+        self.cancel_reconnect_timer()
+        self.__widget.addWidget(self.__reconnect_screen)
         self.__widget.setCurrentIndex(self.__widget.currentIndex() + 1)
+
+    def return_from_reconnect_screen(self):
+        self.__widget.removeWidget(self.__reconnect_screen)
+        self.__widget.setCurrentIndex(self.__widget.currentIndex())
+
+    def cancel_reconnect_timer(self) -> None:
+        if self.connected_thread.is_alive():
+            self.connected_thread.cancel()
+
+    def init_reconnect_timer(self):
+        self.connected_thread = threading.Timer(RECONNECT_TIME, self.show_reconnect_screen)
+        self.connected_thread.start()
