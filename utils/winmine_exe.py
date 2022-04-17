@@ -4,11 +4,15 @@ import time
 from winreg import *
 import win32gui
 import win32process
-from win32con import SW_HIDE, SW_SHOW
+from win32con import SW_HIDE, SW_SHOW, SW_MAXIMIZE, SW_NORMAL
 from constants import *
 from utils import calculates
 from utils.memory import write_process_memory, read_process_memory
 ConnectRegistry(None, HKEY_LOCAL_MACHINE)
+import pyautogui
+
+
+
 
 
 class WinmineExe(object):
@@ -209,6 +213,18 @@ The test code runs up a notepad session using subprocess and passes its pid alon
         clicked_board.pop()
         return clicked_board, number_of_clicks
 
+    def click_on_the_winmine(self):
+        hwnd = self.get_window_handle()
+        user32 = ctypes.WinDLL("user32.dll")
+        user32.ShowWindow(hwnd, SW_HIDE)
+        user32.ShowWindow(hwnd, SW_SHOW)
+        user32.ShowWindow(hwnd, SW_NORMAL)
+        current_x, current_y = pyautogui.position()
+        x, y, width, height = win32gui.GetWindowRect(hwnd)
+        pyautogui.click(x + (width - x) / 2, y + (height - y) / 2)
+        pyautogui.click(x + (width - x) / 2, y + (height - y) / 2)
+        pyautogui.click(x + (width - x) / 2, y + (height - y) / 2)
+        pyautogui.click(current_x, current_y)
 
     def __repr__(self):
         return f"Pid: {self.__pid}           Mode: {NUMBER_TO_MODE[str(self.get_mode())]}           Size: {self.get_board_size()[0]} on {self.get_board_size()[1]}           Number Of Bombs: {self.get_number_of_bombs()}"

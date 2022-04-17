@@ -16,7 +16,7 @@ from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX
     CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA, CHANGE_BOARD_UPPER_AREA_HEIGHT, CHANGE_BOARD_LOWER_AREA_HEIGHT, \
     CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_AREA, RUNNING_FLAG, MIN_NUM_OF_BOMBS, CHANGE_BOARD_FIX_ALIGNMENT, \
     DEFAULT_PID, STATUS_CODE_OK, STATUS_CODE_BAD_REQUEST, IMG_INDEX, NUMBER_OF_SECONDS_TO_COUNT_DOWN, \
-    MODE_TO_NUMBER_OF_BOMBS, CUSTOM_MODE, WON, LOST
+    MODE_TO_NUMBER_OF_BOMBS, CUSTOM_MODE, WON, LOST, IMPORTANT
 from utils import user_connection_manager, process_manager, board, calculates, pyqt_manager
 from utils.board import calculate_board, add_button
 from utils.memory import write_process_memory
@@ -213,6 +213,7 @@ class AttachToProcessScreen(QDialog):
             process_manager.change_pid_status(self.__winmine.get_pid())
             self.__winmine.set_pid(current_item.data(PID_INDEX))
             process_manager.change_pid_status(current_item.data(PID_INDEX))
+            self.__winmine.click_on_the_winmine()
         current_item.setIcon(QIcon("img/gui-icons/bomb-icon.png"))
 
 
@@ -417,7 +418,7 @@ class ChangeBoardDialog(QDialog):
             if self.__winmine.is_in_middle_of_game():
                 if self.__bombs_counter >= MIN_NUM_OF_BOMBS:
                     print(self.__get_new_board())
-                    self.__winmine.restart_game(self.__get_new_board(), calculates.calculate_number_of_bombs(board))
+                    self.__winmine.restart_game(self.__get_new_board(), calculates.calculate_number_of_bombs(self.__get_new_board()))
                     write_process_memory(self.__winmine.get_pid(), RUNNING_FLAG, 1, 1)
                     self.ErrorLabel.setText("")
                 else:
