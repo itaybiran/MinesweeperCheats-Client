@@ -8,7 +8,7 @@ import requests
 import websocket
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QDialog, QListWidgetItem
+from PyQt5.QtWidgets import QDialog, QListWidgetItem, QPushButton
 from PyQt5.uic import loadUi
 from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX, WINMINE_INDEX, SQUARE_SIZE, \
     REVEAL_BOARD_STARTING_X_POSITION, REVEAL_BOARD_STARTING_Y_POSITION, \
@@ -16,9 +16,10 @@ from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX
     CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA, CHANGE_BOARD_UPPER_AREA_HEIGHT, CHANGE_BOARD_LOWER_AREA_HEIGHT, \
     CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_AREA, RUNNING_FLAG, MIN_NUM_OF_BOMBS, CHANGE_BOARD_FIX_ALIGNMENT, \
     DEFAULT_PID, STATUS_CODE_OK, STATUS_CODE_BAD_REQUEST, IMG_INDEX, NUMBER_OF_SECONDS_TO_COUNT_DOWN, \
-    MODE_TO_NUMBER_OF_BOMBS, CUSTOM_MODE, WON, LOST, IMPORTANT
+    MODE_TO_NUMBER_OF_BOMBS, CUSTOM_MODE, WON, LOST, IMPORTANT, SQUARE_BUTTON_SIZE
 from utils import user_connection_manager, process_manager, board, calculates, pyqt_manager
 from utils.board import calculate_board, add_button
+from utils.button import CustomButton
 from utils.memory import write_process_memory
 from utils.message import MessageTypeEnum
 from utils.user import User, set_user
@@ -400,7 +401,6 @@ class ChangeBoardDialog(QDialog):
 
         self.__current_board_width = width
         self.__current_board_height = height
-
         self.__move_screen_objects(y)
 
     def __move_screen_objects(self, y):
@@ -486,7 +486,7 @@ class MultiplayerScreen(QDialog):
         self.__user = user
         self.__messages = []
         self.__number_of_safe_squares = 0
-        self.__opponent_board = [[]]
+        self.__opponent_board = []
         loadUi("gui/multiplayer.ui", self)
         self.__init_screen_objects()
 
@@ -497,6 +497,10 @@ class MultiplayerScreen(QDialog):
         self.ConnectButton.clicked.connect(self.__connect)
         self.SendButton.clicked.connect(self.__send_message)
         self.NameLabel.setText(self.__user.nickname)
+        self.ConnectButton.clicked.connect(self.__connect)
+        self.DisconnectButton.clicked.connect(self.__disconnect)
+        self.DisconnectButton.setVisible(False)
+        self.ConnectButton.setVisible(True)
 
     def update(self) -> None:
         if self.__winmine.get_pid() == DEFAULT_PID:
@@ -505,6 +509,8 @@ class MultiplayerScreen(QDialog):
         else:
             self.ErrorLabel.setText("")
             self.set_buttons_status(False)
+        self.ConnectButton.setVisible(True)
+        self.DisconnectButton.setVisible(False)
         self.NameLabel.setText(self.__user.nickname)
         self.ConnectButton.setText("Connect")
         self.ConnectingLabel.setText("")
@@ -515,6 +521,46 @@ class MultiplayerScreen(QDialog):
         # self.ConnectButton.setDisabled(is_disabled)
         # self.SendButton.setDisabled(is_disabled)
         pass
+
+    def __init_board(self, height):
+        for i in range(height):
+            self.__opponent_board.append([])
+
+    def __display_empty_board(self):
+        self.__opponent_board = []
+        height, width = self.__winmine.get_board_size()
+        self.__init_board(height)
+        # self.setFixedHeight(CHANGE_BOARD_UPPER_AREA_HEIGHT + height * SQUARE_SIZE + CHANGE_BOARD_LOWER_AREA_HEIGHT)
+        # self.ChangeBoardWidget.setFixedHeight(
+        #     CHANGE_BOARD_UPPER_AREA_HEIGHT + height * SQUARE_SIZE + CHANGE_BOARD_LOWER_AREA_HEIGHT)
+        #
+        # if width * SQUARE_SIZE < CHANGE_BOARD_MIN_WIDTH:
+        #     self.setFixedWidth(CHANGE_BOARD_MIN_WIDTH)
+        #     self.ChangeBoardWidget.setFixedWidth(CHANGE_BOARD_MIN_WIDTH)
+        # else:
+        #     self.setFixedWidth(width * SQUARE_SIZE + CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW)
+        #     self.ChangeBoardWidget.setFixedWidth(width * SQUARE_SIZE + CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_WINDOW)
+
+        y = 120
+        for row in range(height):
+            x = 380
+            for column in range(width):
+                self.__opponent_board[row].append()
+                x += SQUARE_SIZE
+            y += SQUARE_SIZE
+
+    def __display_opponent_board(self):
+        current_board = calculate_board(self.__winmine.get_board())
+        x = REVEAL_BOARD_STARTING_X_POSITION
+        y = REVEAL_BOARD_STARTING_Y_POSITION
+        for row in range(len(current_board)):
+            x = REVEAL_BOARD_STARTING_X_POSITION
+            for column in range(len(current_board[row])):
+                add_button(self, current_board[row][column], x, y)
+                x += SQUARE_SIZE
+            y += SQUARE_SIZE
+        self.setFixedHeight(y + SQUARE_SIZE)
+        self.setFixedWidth(x + SQUARE_SIZE)
 
     def __handle_received_message(self, message):
         message = json.loads(json.loads(message))
@@ -527,15 +573,28 @@ class MultiplayerScreen(QDialog):
             self.OpponentNameLabel.setText(message["data"]["nickname"])
             self.OpponentRankLabel.setText(str(message["data"]["rank"]))
             threading.Thread(target=self.__update_game_points).start()
+            self.__display_empty_board()
         elif message["type"] == MessageTypeEnum.points:
             self.OpponentPointsLabel.setText(str(message["data"]) + " / " + str(self.__number_of_safe_squares))
         elif message["type"] == MessageTypeEnum.board:
-            self.__opponent_board = message["data"]
+            pass
         elif message["type"] == MessageTypeEnum.init_board:
             self.__initialize_multiplayer_game(message["data"])
             threading.Thread(target=self.__is_loser_or_winner).start()
-        elif message["type"] == MessageTypeEnum.error:
-            pass
+        elif message["type"] == MessageTypeEnum.win_or_lose:
+            print(message["data"])
+            self.send_new_xp(message["data"])
+        elif message["type"] == MessageTypeEnum.new_xp:
+            self.__user.xp = int(message["data"]["xp"])
+            self.__user.rank = int(message["data"]["rank"])
+
+    def send_new_xp(self, winner_or_loser):
+        clicked_board = self.__winmine.get_clicked_squares()[0]
+        time = self.__winmine.get_timer()
+        if winner_or_loser == str(WON):
+            self.__send_message_with_protocol(str(self.__user.xp + calculates.calculate_game_point_win(clicked_board, time)), "new_xp")
+        elif winner_or_loser == str(LOST):
+            self.__send_message_with_protocol(str(self.__user.xp + calculates.calculate_game_point_lose(clicked_board, time)), "new_xp")
 
     def __initialize_multiplayer_game(self, board):
         self.__winmine.restart_game(board, MODE_TO_NUMBER_OF_BOMBS[self.__winmine.get_mode()])
@@ -559,6 +618,7 @@ class MultiplayerScreen(QDialog):
             self.ErrorLabel.setText("find an opponent first")
 
     def __update_game_points(self):
+        self.ConnectingLabel.setText("")
         while self.__user.ws.keep_running:
             data = self.__winmine.get_clicked_squares()
             self.__send_message_with_protocol(str(data[1]), "points")
@@ -570,17 +630,16 @@ class MultiplayerScreen(QDialog):
             if not self.__winmine.is_time_running():
                 if not self.__winmine.is_in_middle_of_game():
                     if self.__did_player_lose():
-                        print(str(LOST))
+                        self.__send_message_with_protocol(str(LOST), "win_or_lose")
                     else:
-                        print(str(WON))
+                        self.__send_message_with_protocol(str(WON), "win_or_lose")
                 else:
-                    print(str(LOST))
-                user_connection_manager.disconnect_ws(self.__user)
+                    self.__send_message_with_protocol(str(LOST), "win_or_lose")
+                break
             time.sleep(0.1)
 
     def __did_player_lose(self):
         current_board = self.__winmine.get_board()
-        print(current_board)
         for row in range(len(current_board)):
             for column in range(len(current_board[0])):
                 if current_board[row][column] == "BOMB_YOU_TOUCHED":
@@ -598,16 +657,14 @@ class MultiplayerScreen(QDialog):
                     self.__number_of_safe_squares = calculates.calculate_number_of_safe_squares(self.__winmine.get_board())
                     if self.__user.ws == "" or not self.__user.ws.keep_running:
                         self.ErrorLabel.setText("")
-                        self.ConnectButton.setText("disconnect")
+                        self.ConnectButton.setVisible(False)
+                        self.DisconnectButton.setVisible(True)
                         self.ConnectingLabel.setText("Connecting...")
                         self.__user.ws = websocket.WebSocketApp(
                             f"ws://127.0.0.1:8000/ws?nickname={self.__user.nickname}&rank={self.__user.rank}&difficulty={self.__winmine.get_mode()}",
                             header={"Authorization": self.__user.token}, on_message=self.__on_message)
                         self.thread = threading.Thread(target=self.__user.ws.run_forever)
                         self.thread.start()
-                    elif self.ConnectButton.text() == "disconnect":
-                        user_connection_manager.disconnect_ws(self.__user)
-                        self.update()
                 else:
                     self.ErrorLabel.setText("Please click the smiley button")
             else:
@@ -615,6 +672,10 @@ class MultiplayerScreen(QDialog):
         else:
             self.ErrorLabel.setText("Cannot use multiplayer until a process is attached")
             self.set_buttons_status(True)
+
+    def __disconnect(self):
+        user_connection_manager.disconnect_ws(self.__user)
+        self.update()
 
 
 class DisconnectDialog(QDialog):

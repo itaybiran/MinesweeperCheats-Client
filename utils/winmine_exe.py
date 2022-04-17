@@ -124,6 +124,7 @@ class WinmineExe(object):
         t = threading.Thread(target=self.ignore_click)
         t.start()
         self.stop_timer()
+        self.redraw_window()
         while cur_time > 0:
             self.change_timer(cur_time - 1)
             self.redraw_window()
@@ -175,6 +176,7 @@ class WinmineExe(object):
         user32 = ctypes.WinDLL("user32.dll")
         user32.ShowWindow(hwnd, SW_HIDE)
         user32.ShowWindow(hwnd, SW_SHOW)
+        user32.ShowWindow(hwnd, SW_NORMAL)
 
     def get_window_handle(self):
         """The challenge: to find the windows belonging to the process you've just kicked off.
@@ -215,10 +217,7 @@ The test code runs up a notepad session using subprocess and passes its pid alon
 
     def click_on_the_winmine(self):
         hwnd = self.get_window_handle()
-        user32 = ctypes.WinDLL("user32.dll")
-        user32.ShowWindow(hwnd, SW_HIDE)
-        user32.ShowWindow(hwnd, SW_SHOW)
-        user32.ShowWindow(hwnd, SW_NORMAL)
+        self.redraw_window()
         current_x, current_y = pyautogui.position()
         x, y, width, height = win32gui.GetWindowRect(hwnd)
         pyautogui.click(x + (width - x) / 2, y + (height - y) / 2)
