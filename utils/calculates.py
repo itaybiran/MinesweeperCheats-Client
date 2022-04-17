@@ -16,13 +16,12 @@ def calculate_game_point_win(revealed_squares_board, time):
 
 
 def calculate_game_point_lose(revealed_squares_board, time):
-    revealed_squares = 0
+    unrevealed_squares = 0
     for row in range(len(revealed_squares_board)):
         for column in range(len(revealed_squares_board[0])):
-            if revealed_squares_board[row][column] == 1:
-                revealed_squares += 1
-    return int(((-(((len(revealed_squares_board[0]) * len(revealed_squares_board))-POINTS_PER_REVEALED_SQUARE)
-             * revealed_squares + (MAX_TIME - time)))//PROPORTION)//PROPORTION_BETWEEN_LOSE_AND_WIN)
+            if revealed_squares_board[row][column] == 0:
+                unrevealed_squares += 1
+    return -int((unrevealed_squares * POINTS_PER_REVEALED_SQUARE + (MAX_TIME - time))//PROPORTION//PROPORTION_BETWEEN_LOSE_AND_WIN)
 
 
 def calculate_max_bombs(width, height):

@@ -3696,6 +3696,62 @@ color: white;
      <string>Disconnect</string>
     </property>
    </widget>
+   <widget class="QLabel" name="WinLabel">
+    <property name="geometry">
+     <rect>
+      <x>427</x>
+      <y>111</y>
+      <width>191</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Black</family>
+      <pointsize>26</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:transparent;
+color:rgb(84, 160, 232);</string>
+    </property>
+    <property name="text">
+     <string>You Win</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="LoseLabel">
+    <property name="geometry">
+     <rect>
+      <x>426</x>
+      <y>111</y>
+      <width>191</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Black</family>
+      <pointsize>26</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:transparent;
+color:rgb(217, 35, 38);</string>
+    </property>
+    <property name="text">
+     <string>You Lose</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
    <zorder>ConnectingLabel</zorder>
    <zorder>DisconnectButton</zorder>
    <zorder>ConnectButton</zorder>
@@ -3714,6 +3770,8 @@ color: white;
    <zorder>SendButton</zorder>
    <zorder>ChatLabel</zorder>
    <zorder>OpponentPointsLabel</zorder>
+   <zorder>WinLabel</zorder>
+   <zorder>LoseLabel</zorder>
   </widget>
  </widget>
  <resources/>

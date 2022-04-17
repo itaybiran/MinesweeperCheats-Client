@@ -4,7 +4,7 @@ from utils.user import User
 
 
 def disconnect_ws(user: User) -> None:
-    if user.ws and user.ws.keep_running:
+    if user.ws != "" and user.ws.keep_running:
         user.ws.close()
     requests.post(f"{SERVER_URL}/disconnect-ws", headers={"Authorization": user.token}).json()
 

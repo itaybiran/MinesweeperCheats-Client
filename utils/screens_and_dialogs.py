@@ -137,7 +137,6 @@ class AttachToProcessScreen(QDialog):
             shutil.rmtree(f"img/boards_{self.__user.nickname}")
 
     def update(self) -> None:
-        user_connection_manager.disconnect_ws(self.__user)
         self.NameLabel.setText(self.__user.nickname)
         if not os.path.exists(f'img/boards_{self.__user.nickname}'):
             os.mkdir(f"img/boards_{self.__user.nickname}")
@@ -255,7 +254,6 @@ class CheatsScreen(QDialog):
         else:
             self.ErrorLabel.setText("")
             self.set_buttons_status(False)
-        user_connection_manager.disconnect_ws(self.__user)
         self.NameLabel.setText(self.__user.nickname)
         self.RankLabel.setText("Rank: " + str(self.__user.rank))
         self.XpLabel.setText("Xp: " + str(self.__user.xp))
@@ -487,13 +485,14 @@ class MultiplayerScreen(QDialog):
         self.__messages = []
         self.__number_of_safe_squares = 0
         self.__opponent_board = []
+        self.__had_message = False
         loadUi("gui/multiplayer.ui", self)
         self.__init_screen_objects()
 
     def __init_screen_objects(self):
-        self.CheatsButton.clicked.connect(self.__window.show_cheats_screen)
-        self.ProcessButton.clicked.connect(self.__window.show_process_screen)
-        self.LogoutButton.clicked.connect(self.__window.show_login_screen)
+        self.CheatsButton.clicked.connect(self.__show_cheats_screen)
+        self.ProcessButton.clicked.connect(self.__show_process_screen)
+        self.LogoutButton.clicked.connect(self.__show_login_screen)
         self.ConnectButton.clicked.connect(self.__connect)
         self.SendButton.clicked.connect(self.__send_message)
         self.NameLabel.setText(self.__user.nickname)
@@ -503,16 +502,18 @@ class MultiplayerScreen(QDialog):
         self.ConnectButton.setVisible(True)
 
     def update(self) -> None:
+        self.__had_message = False
         if self.__winmine.get_pid() == DEFAULT_PID:
             self.ErrorLabel.setText("Cannot use multiplayer until a process is attached")
             self.set_buttons_status(True)
         else:
             self.ErrorLabel.setText("")
             self.set_buttons_status(False)
+        self.WinLabel.setVisible(False)
+        self.LoseLabel.setVisible(False)
         self.ConnectButton.setVisible(True)
         self.DisconnectButton.setVisible(False)
         self.NameLabel.setText(self.__user.nickname)
-        self.ConnectButton.setText("Connect")
         self.ConnectingLabel.setText("")
         self.OpponentNameLabel.setText("")
         self.MessagesTable.clear()
@@ -582,19 +583,28 @@ class MultiplayerScreen(QDialog):
             self.__initialize_multiplayer_game(message["data"])
             threading.Thread(target=self.__is_loser_or_winner).start()
         elif message["type"] == MessageTypeEnum.win_or_lose:
-            print(message["data"])
+            self.__display_game_result(message["data"])
             self.send_new_xp(message["data"])
         elif message["type"] == MessageTypeEnum.new_xp:
             self.__user.xp = int(message["data"]["xp"])
             self.__user.rank = int(message["data"]["rank"])
+            user_connection_manager.disconnect_ws(self.__user)
+
+    def __display_game_result(self, winner_or_loser):
+        if winner_or_loser == str(WON):
+            self.WinLabel.setVisible(True)
+            self.LoseLabel.setVisible(False)
+        elif winner_or_loser == str(LOST):
+            self.WinLabel.setVisible(False)
+            self.LoseLabel.setVisible(True)
 
     def send_new_xp(self, winner_or_loser):
         clicked_board = self.__winmine.get_clicked_squares()[0]
-        time = self.__winmine.get_timer()
+        current_time = self.__winmine.get_timer()
         if winner_or_loser == str(WON):
-            self.__send_message_with_protocol(str(self.__user.xp + calculates.calculate_game_point_win(clicked_board, time)), "new_xp")
+            self.__send_message_with_protocol(str(self.__user.xp + calculates.calculate_game_point_win(clicked_board, current_time)), "new_xp")
         elif winner_or_loser == str(LOST):
-            self.__send_message_with_protocol(str(self.__user.xp + calculates.calculate_game_point_lose(clicked_board, time)), "new_xp")
+            self.__send_message_with_protocol(str(self.__user.xp + calculates.calculate_game_point_lose(clicked_board, current_time)), "new_xp")
 
     def __initialize_multiplayer_game(self, board):
         self.__winmine.restart_game(board, MODE_TO_NUMBER_OF_BOMBS[self.__winmine.get_mode()])
@@ -629,10 +639,10 @@ class MultiplayerScreen(QDialog):
         while self.__user.ws.keep_running:
             if not self.__winmine.is_time_running():
                 if not self.__winmine.is_in_middle_of_game():
-                    if self.__did_player_lose():
-                        self.__send_message_with_protocol(str(LOST), "win_or_lose")
-                    else:
+                    if self.__did_player_win():
                         self.__send_message_with_protocol(str(WON), "win_or_lose")
+                    else:
+                        self.__send_message_with_protocol(str(LOST), "win_or_lose")
                 else:
                     self.__send_message_with_protocol(str(LOST), "win_or_lose")
                 break
@@ -646,7 +656,17 @@ class MultiplayerScreen(QDialog):
                     return True
         return False
 
+    def __did_player_win(self):
+        current_board = self.__winmine.get_board()
+        number_of_bombs = MODE_TO_NUMBER_OF_BOMBS[self.__winmine.get_mode()]
+        for row in range(len(current_board)):
+            for column in range(len(current_board[0])):
+                if current_board[row][column] == "RIGHT_FLAG":
+                    number_of_bombs -= 1
+        return number_of_bombs == 0
+
     def __on_message(self, ws, message):
+        self.__had_message = True
         self.__handle_received_message(message)
 
     def __connect(self):
@@ -674,8 +694,25 @@ class MultiplayerScreen(QDialog):
             self.set_buttons_status(True)
 
     def __disconnect(self):
-        user_connection_manager.disconnect_ws(self.__user)
+        if not self.__had_message:
+            user_connection_manager.disconnect_ws(self.__user)
+            self.update()
+            return
+        if self.__user.ws != "" and self.__user.ws.keep_running:
+            self.__send_message_with_protocol(str(LOST), "win_or_lose")
         self.update()
+
+    def __show_cheats_screen(self):
+        self.__disconnect()
+        self.__window.show_cheats_screen()
+
+    def __show_process_screen(self):
+        self.__disconnect()
+        self.__window.show_process_screen()
+
+    def __show_login_screen(self):
+        self.__disconnect()
+        self.__window.show_login_screen()
 
 
 class DisconnectDialog(QDialog):
