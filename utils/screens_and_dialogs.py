@@ -627,8 +627,15 @@ class MultiplayerScreen(QDialog):
         else:
             self.ErrorLabel.setText("find an opponent first")
 
+    def __check_if_mode_changed(self):
+        self.__current_mode = self.__winmine.get_mode()
+        while self.__user.ws.keep_running:
+            if self.__current_mode != self.__winmine.get_mode() and not self.__had_message:
+                self.__disconnect()
+
     def __update_game_points(self):
         self.ConnectingLabel.setText("")
+        self.__current_mode = self.__winmine.get_mode()
         while self.__user.ws.keep_running:
             data = self.__winmine.get_clicked_squares()
             self.__send_message_with_protocol(str(data[1]), "points")
@@ -685,6 +692,7 @@ class MultiplayerScreen(QDialog):
                             header={"Authorization": self.__user.token}, on_message=self.__on_message)
                         self.thread = threading.Thread(target=self.__user.ws.run_forever)
                         self.thread.start()
+                        threading.Thread(target=self.__check_if_mode_changed).start()
                 else:
                     self.ErrorLabel.setText("Please click the smiley button")
             else:
@@ -696,11 +704,10 @@ class MultiplayerScreen(QDialog):
     def __disconnect(self):
         if not self.__had_message:
             user_connection_manager.disconnect_ws(self.__user)
-            self.update()
-            return
         if self.__user.ws != "" and self.__user.ws.keep_running:
             self.__send_message_with_protocol(str(LOST), "win_or_lose")
         self.update()
+        self.__had_message = False
 
     def __show_cheats_screen(self):
         self.__disconnect()
