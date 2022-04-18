@@ -6,9 +6,9 @@ import time
 from functools import partial
 import requests
 import websocket
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QDialog, QListWidgetItem
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QIcon, QFont, QPalette, QColor
+from PyQt5.QtWidgets import QDialog, QListWidgetItem, QPushButton, QToolTip
 from PyQt5.uic import loadUi
 from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX, WINMINE_INDEX, SQUARE_SIZE, \
     REVEAL_BOARD_STARTING_X_POSITION, REVEAL_BOARD_STARTING_Y_POSITION, \
@@ -16,7 +16,7 @@ from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX
     CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA, CHANGE_BOARD_UPPER_AREA_HEIGHT, CHANGE_BOARD_LOWER_AREA_HEIGHT, \
     CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_AREA, RUNNING_FLAG, MIN_NUM_OF_BOMBS, CHANGE_BOARD_FIX_ALIGNMENT, \
     DEFAULT_PID, STATUS_CODE_OK, STATUS_CODE_BAD_REQUEST, IMG_INDEX, NUMBER_OF_SECONDS_TO_COUNT_DOWN, \
-    MODE_TO_NUMBER_OF_BOMBS, CUSTOM_MODE, WON, LOST, RANK_TO_ICON
+    MODE_TO_NUMBER_OF_BOMBS, CUSTOM_MODE, WON, LOST, RANK_TO_ICON, EASY_MODE, INTIMIDATE_MODE, EXPERT_MODE
 from utils import user_connection_manager, process_manager, board, calculates, pyqt_manager
 from utils.board import calculate_board, add_button
 from utils.memory import write_process_memory
@@ -498,6 +498,7 @@ class MultiplayerScreen(QDialog):
         self.SendButton.clicked.connect(self.__send_message)
         self.ConnectButton.clicked.connect(self.__connect)
         self.DisconnectButton.clicked.connect(self.__disconnect)
+        self.__clicked_board = [[]]
         self.DisconnectButton.setVisible(False)
         self.ConnectButton.setVisible(True)
 
@@ -508,6 +509,7 @@ class MultiplayerScreen(QDialog):
         else:
             self.ErrorLabel.setText("")
             self.set_buttons_status(False)
+        self.__clicked_board = [[]]
         self.__had_message = False
         self.WinLabel.setVisible(False)
         self.LoseLabel.setVisible(False)
@@ -547,6 +549,7 @@ class MultiplayerScreen(QDialog):
         for row in range(height):
             x = 380
             for column in range(width):
+                # custom_button = add_button(self, "button", x, y)
                 self.__opponent_board[row].append()
                 x += SQUARE_SIZE
             y += SQUARE_SIZE
@@ -579,7 +582,8 @@ class MultiplayerScreen(QDialog):
         elif message["type"] == MessageTypeEnum.points:
             self.OpponentPointsLabel.setText(str(message["data"]) + " / " + str(self.__number_of_safe_squares))
         elif message["type"] == MessageTypeEnum.board:
-            pass
+            self.__display_opponent_clicked_board(json.loads(message["data"]))
+            self.__clicked_board = json.loads(message["data"])
         elif message["type"] == MessageTypeEnum.init_board:
             self.__initialize_multiplayer_game(message["data"])
             threading.Thread(target=self.__is_loser_or_winner).start()
@@ -642,6 +646,28 @@ class MultiplayerScreen(QDialog):
             self.__send_message_with_protocol(str(data[1]), "points")
             self.__send_message_with_protocol(str(data[0]), "board")
             time.sleep(1)
+
+    def __display_opponent_clicked_board(self, clicked_board):
+        if clicked_board != self.__clicked_board:
+            board.create_clicked_board(clicked_board, f"./img/boards_{self.__user.nickname}/opponent_board.png")
+            if self.__winmine.get_mode() == EASY_MODE:
+                self.EasyOpponentBoard.setIcon(QIcon(f"./img/boards_{self.__user.nickname}/opponent_board.png"))
+                self.EasyOpponentBoard.setIconSize(QSize(150, 150))
+                self.EasyOpponentBoard.setVisible(True)
+                self.InermidiateOpponentBoard.setVisible(False)
+                self.ExpertOpponentBoard.setVisible(False)
+            elif self.__winmine.get_mode() == INTIMIDATE_MODE:
+                self.InermidiateOpponentBoard.setIcon(QIcon(f"./img/boards_{self.__user.nickname}/opponent_board.png"))
+                self.InermidiateOpponentBoard.setIconSize(QSize(200, 200))
+                self.InermidiateOpponentBoard.setVisible(True)
+                self.EasyOpponentBoard.setVisible(False)
+                self.ExpertOpponentBoard.setVisible(False)
+            elif self.__winmine.get_mode() == EXPERT_MODE:
+                self.ExpertOpponentBoard.setIcon(QIcon(f"./img/boards_{self.__user.nickname}/opponent_board.png"))
+                self.ExpertOpponentBoard.setIconSize(QSize(300, 160))
+                self.ExpertOpponentBoard.setVisible(True)
+                self.EasyOpponentBoard.setVisible(False)
+                self.InermidiateOpponentBoard.setVisible(False)
 
     def __is_loser_or_winner(self):
         while self.__user.ws.keep_running:

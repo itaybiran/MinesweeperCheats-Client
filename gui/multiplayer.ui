@@ -1579,6 +1579,9 @@ margin-left:1px;
        <bold>true</bold>
       </font>
      </property>
+     <property name="toolTip">
+      <string>ff</string>
+     </property>
      <property name="styleSheet">
       <string notr="true">background-color:transparent;
 color:white;</string>
@@ -3703,7 +3706,7 @@ color: white;
     <property name="geometry">
      <rect>
       <x>427</x>
-      <y>111</y>
+      <y>106</y>
       <width>191</width>
       <height>51</height>
      </rect>
@@ -3731,7 +3734,7 @@ color:rgb(84, 160, 232);</string>
     <property name="geometry">
      <rect>
       <x>426</x>
-      <y>111</y>
+      <y>106</y>
       <width>191</width>
       <height>51</height>
      </rect>
@@ -3755,6 +3758,45 @@ color:rgb(217, 35, 38);</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QPushButton" name="ExpertOpponentBoard">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>155</y>
+      <width>300</width>
+      <height>160</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="IntermidiateOpponentBoard">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>155</y>
+      <width>200</width>
+      <height>200</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="EasyOpponentBoard">
+    <property name="geometry">
+     <rect>
+      <x>445</x>
+      <y>155</y>
+      <width>150</width>
+      <height>150</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
    <zorder>ConnectingLabel</zorder>
    <zorder>DisconnectButton</zorder>
    <zorder>ConnectButton</zorder>
@@ -3774,6 +3816,9 @@ color:rgb(217, 35, 38);</string>
    <zorder>OpponentPointsLabel</zorder>
    <zorder>WinLabel</zorder>
    <zorder>LoseLabel</zorder>
+   <zorder>ExpertOpponentBoard</zorder>
+   <zorder>IntermidiateOpponentBoard</zorder>
+   <zorder>EasyOpponentBoard</zorder>
   </widget>
  </widget>
  <resources/>

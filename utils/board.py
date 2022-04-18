@@ -72,3 +72,19 @@ def create_board(matrix_board=[[]], path_to_save=""):
         return board_img
     except:
         pass
+
+
+def create_clicked_board(matrix_clicked_board=[[]], path_to_save=""):
+    try:
+        board_img = init_board_img(SQUARE_SIZE_TOOLTIP * len(matrix_clicked_board[0]), SQUARE_SIZE_TOOLTIP * len(matrix_clicked_board))
+        for row in range(len(matrix_clicked_board)):
+            for column in range(len(matrix_clicked_board[row])):
+                if str(matrix_clicked_board[row][column]) == "1":
+                    add_square(board_img, "./img/board-icons/clicked.png", column * SQUARE_SIZE_TOOLTIP, row * SQUARE_SIZE_TOOLTIP)
+                else:
+                    add_square(board_img, "./img/board-icons/button.png", column * SQUARE_SIZE_TOOLTIP, row * SQUARE_SIZE_TOOLTIP)
+        if path_to_save != "":
+            board_img.save(path_to_save, "PNG")
+        return board_img
+    except:
+        pass
