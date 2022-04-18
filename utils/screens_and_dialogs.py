@@ -8,7 +8,7 @@ import requests
 import websocket
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QDialog, QListWidgetItem, QPushButton
+from PyQt5.QtWidgets import QDialog, QListWidgetItem
 from PyQt5.uic import loadUi
 from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX, WINMINE_INDEX, SQUARE_SIZE, \
     REVEAL_BOARD_STARTING_X_POSITION, REVEAL_BOARD_STARTING_Y_POSITION, \
@@ -16,10 +16,9 @@ from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX
     CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA, CHANGE_BOARD_UPPER_AREA_HEIGHT, CHANGE_BOARD_LOWER_AREA_HEIGHT, \
     CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_AREA, RUNNING_FLAG, MIN_NUM_OF_BOMBS, CHANGE_BOARD_FIX_ALIGNMENT, \
     DEFAULT_PID, STATUS_CODE_OK, STATUS_CODE_BAD_REQUEST, IMG_INDEX, NUMBER_OF_SECONDS_TO_COUNT_DOWN, \
-    MODE_TO_NUMBER_OF_BOMBS, CUSTOM_MODE, WON, LOST, IMPORTANT, SQUARE_BUTTON_SIZE
+    MODE_TO_NUMBER_OF_BOMBS, CUSTOM_MODE, WON, LOST, RANK_TO_ICON
 from utils import user_connection_manager, process_manager, board, calculates, pyqt_manager
 from utils.board import calculate_board, add_button
-from utils.button import CustomButton
 from utils.memory import write_process_memory
 from utils.message import MessageTypeEnum
 from utils.user import User, set_user
@@ -138,6 +137,7 @@ class AttachToProcessScreen(QDialog):
 
     def update(self) -> None:
         self.NameLabel.setText(self.__user.nickname)
+        self.NameLabel.setIcon(QIcon(RANK_TO_ICON[self.__user.rank+1]))
         if not os.path.exists(f'img/boards_{self.__user.nickname}'):
             os.mkdir(f"img/boards_{self.__user.nickname}")
 
@@ -255,6 +255,7 @@ class CheatsScreen(QDialog):
             self.ErrorLabel.setText("")
             self.set_buttons_status(False)
         self.NameLabel.setText(self.__user.nickname)
+        self.NameLabel.setIcon(QIcon(RANK_TO_ICON[self.__user.rank+1]))
         self.RankLabel.setText("Rank: " + str(self.__user.rank))
         self.XpLabel.setText("Xp: " + str(self.__user.xp))
 
@@ -495,25 +496,25 @@ class MultiplayerScreen(QDialog):
         self.LogoutButton.clicked.connect(self.__show_login_screen)
         self.ConnectButton.clicked.connect(self.__connect)
         self.SendButton.clicked.connect(self.__send_message)
-        self.NameLabel.setText(self.__user.nickname)
         self.ConnectButton.clicked.connect(self.__connect)
         self.DisconnectButton.clicked.connect(self.__disconnect)
         self.DisconnectButton.setVisible(False)
         self.ConnectButton.setVisible(True)
 
     def update(self) -> None:
-        self.__had_message = False
         if self.__winmine.get_pid() == DEFAULT_PID:
             self.ErrorLabel.setText("Cannot use multiplayer until a process is attached")
             self.set_buttons_status(True)
         else:
             self.ErrorLabel.setText("")
             self.set_buttons_status(False)
+        self.__had_message = False
         self.WinLabel.setVisible(False)
         self.LoseLabel.setVisible(False)
         self.ConnectButton.setVisible(True)
         self.DisconnectButton.setVisible(False)
         self.NameLabel.setText(self.__user.nickname)
+        self.NameLabel.setIcon(QIcon(RANK_TO_ICON[self.__user.rank+1]))
         self.ConnectingLabel.setText("")
         self.OpponentNameLabel.setText("")
         self.MessagesTable.clear()
@@ -690,8 +691,7 @@ class MultiplayerScreen(QDialog):
                         self.__user.ws = websocket.WebSocketApp(
                             f"ws://127.0.0.1:8000/ws?nickname={self.__user.nickname}&rank={self.__user.rank}&difficulty={self.__winmine.get_mode()}",
                             header={"Authorization": self.__user.token}, on_message=self.__on_message)
-                        self.thread = threading.Thread(target=self.__user.ws.run_forever)
-                        self.thread.start()
+                        threading.Thread(target=self.__user.ws.run_forever).start()
                         threading.Thread(target=self.__check_if_mode_changed).start()
                 else:
                     self.ErrorLabel.setText("Please click the smiley button")

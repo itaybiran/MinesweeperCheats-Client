@@ -1,6 +1,4 @@
-
 from winreg import REG_DWORD, REG_SZ
-
 
 # windows
 
@@ -93,7 +91,8 @@ VALUE_TO_SYMBOL = {0x8E: "RIGHT_FLAG",
                    }
 
 START_GAME_SQUARES = ["HIDDEN_BOMB", "SAFE_PLACE", "QUESTION_MARK", "WRONG_FLAG", "RIGHT_FLAG"]
-RIGHT_CLICKS_SQUARES = ["EMPTY_SQUARE", "RIGHT_FLAG", "WRONG_FLAG", "QUESTION_MARK", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"]
+RIGHT_CLICKS_SQUARES = ["EMPTY_SQUARE", "RIGHT_FLAG", "WRONG_FLAG", "QUESTION_MARK", "ONE", "TWO", "THREE", "FOUR",
+                        "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"]
 
 UNUSED_AREA = 0x0F
 BOUNDARY = 0x10
@@ -167,6 +166,25 @@ NUMBER_TO_ICON = {
     "bomb": "./img/board-icons/bomb.png",
     "button": "./img/board-icons/button.png"
 }
+
+RANK_TO_ICON = {
+    1: "./img/ranks/1.png",
+    2: "./img/ranks/2.png",
+    3: "./img/ranks/3.png",
+    4: "./img/ranks/4.png",
+    5: "./img/ranks/5.png",
+    6: "./img/ranks/6.png",
+    7: "./img/ranks/7.png",
+    8: "./img/ranks/8.png",
+    9: "./img/ranks/9.png",
+    10: "./img/ranks/10.png",
+    11: "./img/ranks/11.png",
+    12: "./img/ranks/12.png",
+    13: "./img/ranks/13.png",
+    14: "./img/ranks/14.png",
+    15: "./img/ranks/15.png",
+}
+
 MODE_TO_NUMBER_OF_BOMBS = {EASY_MODE: 10,
                            INTIMIDATE_MODE: 40,
                            EXPERT_MODE: 99

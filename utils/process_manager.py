@@ -5,12 +5,16 @@ from utils.winmine_exe import WinmineExe
 
 def get_all_pids():
     """A functions that returns all the pids of running winmines."""
-    command = "tasklist | findstr Winmine__XP.exe"
+    command = "tasklist | findstr Winmine"
     pids = []
     process_description_lines = os.popen(command).read().split("\n")
     for line in process_description_lines:
         try:
-            pids.append(int(line.split()[1]))
+            list_line = line.split()
+            if len(list_line) == 6:
+                pids.append(int(list_line[1]))
+            elif len(list_line) == 7:
+                pids.append(int(list_line[2]))
         except IndexError:
             pass
     return remove_new_lines(pids)

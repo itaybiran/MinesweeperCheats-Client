@@ -1562,34 +1562,37 @@ margin-left:1px;
       <string/>
      </property>
     </widget>
-   </widget>
-   <widget class="QLabel" name="NameLabel">
-    <property name="geometry">
-     <rect>
-      <x>15</x>
-      <y>15</y>
-      <width>121</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Segoe UI Black</family>
-      <pointsize>16</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color:transparent;
+    <widget class="QPushButton" name="NameLabel">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>10</y>
+       <width>145</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Segoe UI Black</family>
+       <pointsize>11</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color:transparent;
 color:white;</string>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>39</width>
+       <height>39</height>
+      </size>
+     </property>
+    </widget>
    </widget>
    <widget class="QPushButton" name="CheatsButton">
     <property name="geometry">
@@ -3758,7 +3761,6 @@ color:rgb(217, 35, 38);</string>
    <zorder>InfoLabel</zorder>
    <zorder>ButtonsWidget</zorder>
    <zorder>MultiplayerButton</zorder>
-   <zorder>NameLabel</zorder>
    <zorder>CheatsButton</zorder>
    <zorder>OpponentNameLabel</zorder>
    <zorder>ErrorLabel</zorder>
