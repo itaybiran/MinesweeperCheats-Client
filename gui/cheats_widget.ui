@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Minesweepr Plus</string>
   </property>
   <widget class="QWidget" name="CheatsWidget" native="true">
    <property name="geometry">
@@ -2456,40 +2456,6 @@ color: white;
     </property>
     <property name="text">
      <string>Change Board</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="RankLabel">
-    <property name="geometry">
-     <rect>
-      <x>580</x>
-      <y>10</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color:transparent;
-color:white;</string>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QLabel" name="XpLabel">
-    <property name="geometry">
-     <rect>
-      <x>580</x>
-      <y>30</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color:transparent;
-color:white;</string>
-    </property>
-    <property name="text">
-     <string/>
     </property>
    </widget>
    <widget class="QWidget" name="ButtonsWidget" native="true">

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Minesweepr Plus</string>
   </property>
   <widget class="QWidget" name="MultiplayerWidget" native="true">
    <property name="geometry">
@@ -29,7 +29,7 @@
     <property name="geometry">
      <rect>
       <x>457</x>
-      <y>40</y>
+      <y>18</y>
       <width>131</width>
       <height>61</height>
      </rect>
@@ -1032,7 +1032,7 @@ color: white;
     <property name="geometry">
      <rect>
       <x>451</x>
-      <y>355</y>
+      <y>350</y>
       <width>151</width>
       <height>31</height>
      </rect>
@@ -2559,40 +2559,11 @@ color: white;
      <string>Multiplayer</string>
     </property>
    </widget>
-   <widget class="QLabel" name="OpponentNameLabel">
-    <property name="geometry">
-     <rect>
-      <x>600</x>
-      <y>20</y>
-      <width>71</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Segoe UI Black</family>
-      <pointsize>12</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color:transparent;
-color:white;
-border:0</string>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
    <widget class="QLabel" name="ErrorLabel">
     <property name="geometry">
      <rect>
-      <x>386</x>
-      <y>370</y>
+      <x>381</x>
+      <y>378</y>
       <width>281</width>
       <height>15</height>
      </rect>
@@ -3088,42 +3059,13 @@ QPushButton
      <string>Attach To Process</string>
     </property>
    </widget>
-   <widget class="QLabel" name="OpponentRankLabel">
-    <property name="geometry">
-     <rect>
-      <x>600</x>
-      <y>70</y>
-      <width>71</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Segoe UI Black</family>
-      <pointsize>12</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color:transparent;
-color:white;
-border:0</string>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
    <widget class="QListWidget" name="MessagesTable">
     <property name="geometry">
      <rect>
       <x>150</x>
       <y>60</y>
       <width>200</width>
-      <height>340</height>
+      <height>300</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -3194,40 +3136,11 @@ color:white;</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="OpponentPointsLabel">
-    <property name="geometry">
-     <rect>
-      <x>600</x>
-      <y>120</y>
-      <width>71</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Segoe UI Black</family>
-      <pointsize>12</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color:transparent;
-color:white;
-border:0</string>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
    <widget class="QPushButton" name="DisconnectButton">
     <property name="geometry">
      <rect>
       <x>457</x>
-      <y>40</y>
+      <y>18</y>
       <width>131</width>
       <height>61</height>
      </rect>
@@ -3705,8 +3618,8 @@ color: white;
    <widget class="QLabel" name="WinLabel">
     <property name="geometry">
      <rect>
-      <x>427</x>
-      <y>106</y>
+      <x>390</x>
+      <y>310</y>
       <width>191</width>
       <height>51</height>
      </rect>
@@ -3733,8 +3646,8 @@ color:rgb(84, 160, 232);</string>
    <widget class="QLabel" name="LoseLabel">
     <property name="geometry">
      <rect>
-      <x>426</x>
-      <y>106</y>
+      <x>390</x>
+      <y>310</y>
       <width>191</width>
       <height>51</height>
      </rect>
@@ -3761,8 +3674,8 @@ color:rgb(217, 35, 38);</string>
    <widget class="QPushButton" name="ExpertOpponentBoard">
     <property name="geometry">
      <rect>
-      <x>370</x>
-      <y>155</y>
+      <x>375</x>
+      <y>140</y>
       <width>300</width>
       <height>160</height>
      </rect>
@@ -3775,7 +3688,7 @@ color:rgb(217, 35, 38);</string>
     <property name="geometry">
      <rect>
       <x>420</x>
-      <y>155</y>
+      <y>117</y>
       <width>200</width>
       <height>200</height>
      </rect>
@@ -3788,7 +3701,7 @@ color:rgb(217, 35, 38);</string>
     <property name="geometry">
      <rect>
       <x>445</x>
-      <y>155</y>
+      <y>140</y>
       <width>150</width>
       <height>150</height>
      </rect>
@@ -3797,6 +3710,105 @@ color:rgb(217, 35, 38);</string>
      <string/>
     </property>
    </widget>
+   <widget class="QListWidget" name="MessagesTable_2">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>360</y>
+      <width>200</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QListWidget
+{
+background-color:rgba(0,0,0,45);
+color:white;
+border:0;
+}
+QScrollBar:vertical
+ {              
+border: none;
+background-color:rgb(190, 106, 218);
+width:5px;
+margin: 0px 0px 0px 0px;
+ }
+QScrollBar::handle:vertical
+{
+background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+stop: 0  rgb(144, 80, 165), stop: 0.5   rgb(144, 80, 165), stop:1 rgb(144, 80, 165));
+min-height: 0px;
+ }
+
+</string>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAsNeeded</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="XpLabel">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>329</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Black</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:transparent;
+color:white;</string>
+    </property>
+    <property name="text">
+     <string>(+0xp)</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="OpponentLabel">
+    <property name="geometry">
+     <rect>
+      <x>446</x>
+      <y>85</y>
+      <width>150</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Segoe UI Black</family>
+      <pointsize>11</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="toolTip">
+     <string>ff</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:transparent;
+color:white;</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>26</width>
+      <height>26</height>
+     </size>
+    </property>
+   </widget>
+   <zorder>MessagesTable_2</zorder>
    <zorder>ConnectingLabel</zorder>
    <zorder>DisconnectButton</zorder>
    <zorder>ConnectButton</zorder>
@@ -3804,21 +3816,20 @@ color:rgb(217, 35, 38);</string>
    <zorder>ButtonsWidget</zorder>
    <zorder>MultiplayerButton</zorder>
    <zorder>CheatsButton</zorder>
-   <zorder>OpponentNameLabel</zorder>
    <zorder>ErrorLabel</zorder>
    <zorder>ProcessButton</zorder>
-   <zorder>OpponentRankLabel</zorder>
    <zorder>MessagesTable</zorder>
    <zorder>ChatWidget</zorder>
    <zorder>ChatField</zorder>
    <zorder>SendButton</zorder>
    <zorder>ChatLabel</zorder>
-   <zorder>OpponentPointsLabel</zorder>
-   <zorder>WinLabel</zorder>
-   <zorder>LoseLabel</zorder>
    <zorder>ExpertOpponentBoard</zorder>
    <zorder>IntermidiateOpponentBoard</zorder>
    <zorder>EasyOpponentBoard</zorder>
+   <zorder>WinLabel</zorder>
+   <zorder>XpLabel</zorder>
+   <zorder>LoseLabel</zorder>
+   <zorder>OpponentLabel</zorder>
   </widget>
  </widget>
  <resources/>

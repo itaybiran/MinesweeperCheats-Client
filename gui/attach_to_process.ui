@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Minesweepr Plus</string>
   </property>
   <widget class="QWidget" name="ProcessWidget" native="true">
    <property name="geometry">

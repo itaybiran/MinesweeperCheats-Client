@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Minesweepr Plus</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background:qlineargradient(spread:pad, x1:1, y1:0, x2:0, y2:1, stop:0 rgba(45, 45, 45, 255), stop:1 rgba(113, 113, 113, 255))</string>
@@ -90,9 +90,9 @@ background-color:rgba(0,0,0,0)</string>
   <widget class="QLabel" name="ErrorLabel">
    <property name="geometry">
     <rect>
-     <x>264</x>
+     <x>207</x>
      <y>144</y>
-     <width>171</width>
+     <width>291</width>
      <height>15</height>
     </rect>
    </property>

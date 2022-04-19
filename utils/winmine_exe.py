@@ -110,10 +110,9 @@ class WinmineExe(object):
         write_process_memory(self.__pid, MODE_ADDRESS, mode, 1)
 
     def get_number_of_bombs(self):
-        return read_process_memory(self.__pid, NUMBER_OF_BOMBS_ADDRESS, 1)
+        return read_process_memory(self.__pid, NUMBER_OF_BOMBS_ADDRESS, 2)
 
     def set_number_of_bombs(self, new_number_of_bombs):
-        # write_process_memory(self.__pid, 0x010056A4, new_number_of_bombs, 1)
         write_process_memory(self.__pid, NUMBER_OF_BOMBS_ADDRESS, new_number_of_bombs, 1)
         write_process_memory(self.__pid, INIT_NUMBER_OF_BOMBS_ADDRESS, new_number_of_bombs, 1)
         write_process_memory(self.__pid, NUMBER_OF_SAFE_PLACES_ADDRESS, self.get_board_size()[0]*self.get_board_size()[1] - new_number_of_bombs, 2)
@@ -179,17 +178,6 @@ class WinmineExe(object):
         user32.ShowWindow(hwnd, SW_NORMAL)
 
     def get_window_handle(self):
-        """The challenge: to find the windows belonging to the process you've just kicked off.
-The idea is that if, for example, you run a notepad session, you then want to read the text entered into it,
- or close it down if it's been open too long, or whatever.
-  The problem is that Windows doesn't provide a straightforward mapping from process id to window.
-The situation is complicated because some process may not have a window, or may have several.
- The approach below uses the venerable technique of iterating over all top-level windows and finding the ones belonging to a process id.
-  It only considers windows which are visible and enabled (which is generally what you want)
-   and returns a list of the ones associated with your pid.
-The test code runs up a notepad session using subprocess and passes its pid along after a couple of seconds,
- since experience showed that firing off the search too soon wouldn't find the window.
-  Obviously, your own code could do whatever you wanted with the window."""
         def callback(hwnd, hwnds):
             if win32gui.IsWindowVisible(hwnd) and win32gui.IsWindowEnabled(hwnd):
                 _, found_pid = win32process.GetWindowThreadProcessId(hwnd)
@@ -226,4 +214,7 @@ The test code runs up a notepad session using subprocess and passes its pid alon
         pyautogui.click(current_x, current_y)
 
     def __repr__(self):
-        return f"Pid: {self.__pid}           Mode: {NUMBER_TO_MODE[str(self.get_mode())]}           Size: {self.get_board_size()[0]} on {self.get_board_size()[1]}           Number Of Bombs: {self.get_number_of_bombs()}"
+        number_of_bombs = self.get_number_of_bombs()
+        if number_of_bombs > 60000:
+            number_of_bombs -= MAX_NUMBER_REPRESENTED_BY_TWO_BYTES
+        return f"Pid: {self.__pid}           Mode: {NUMBER_TO_MODE[str(self.get_mode())]}           Size: {self.get_board_size()[0]} on {self.get_board_size()[1]}           Number Of Bombs: {number_of_bombs}"

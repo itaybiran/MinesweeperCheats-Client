@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Minesweepr Plus</string>
   </property>
   <widget class="QWidget" name="DisconnectWidget" native="true">
    <property name="geometry">

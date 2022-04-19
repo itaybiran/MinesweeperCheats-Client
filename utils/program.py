@@ -22,7 +22,6 @@ class Program:
             self.__app.exec_()
             self.exit()
         except Exception as e:
-            print(e)
             self.exit()
 
     def exit(self):

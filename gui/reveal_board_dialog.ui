@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Reveal Board</string>
   </property>
   <widget class="QWidget" name="ChangeTimeWidget" native="true">
    <property name="geometry">
