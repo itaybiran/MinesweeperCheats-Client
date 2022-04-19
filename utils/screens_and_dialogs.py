@@ -515,6 +515,9 @@ class MultiplayerScreen(QDialog):
         self.LoseLabel.setVisible(False)
         self.ConnectButton.setVisible(True)
         self.DisconnectButton.setVisible(False)
+        self.ExpertOpponentBoard.setVisible(False)
+        self.EasyOpponentBoard.setVisible(False)
+        self.IntermidiateOpponentBoard.setVisible(False)
         self.NameLabel.setText(self.__user.nickname)
         self.NameLabel.setIcon(QIcon(RANK_TO_ICON[self.__user.rank+1]))
         self.ConnectingLabel.setText("")
@@ -613,7 +616,9 @@ class MultiplayerScreen(QDialog):
 
     def __initialize_multiplayer_game(self, board):
         self.__winmine.restart_game(board, MODE_TO_NUMBER_OF_BOMBS[self.__winmine.get_mode()])
+        self.DisconnectButton.setDisabled(True)
         self.__winmine.count_backward(NUMBER_OF_SECONDS_TO_COUNT_DOWN)
+        self.DisconnectButton.setDisabled(False)
         self.__winmine.start_timer()
 
     def __send_message_with_protocol(self, data: str, message_type: str):
@@ -654,12 +659,12 @@ class MultiplayerScreen(QDialog):
                 self.EasyOpponentBoard.setIcon(QIcon(f"./img/boards_{self.__user.nickname}/opponent_board.png"))
                 self.EasyOpponentBoard.setIconSize(QSize(150, 150))
                 self.EasyOpponentBoard.setVisible(True)
-                self.InermidiateOpponentBoard.setVisible(False)
+                self.IntermidiateOpponentBoard.setVisible(False)
                 self.ExpertOpponentBoard.setVisible(False)
             elif self.__winmine.get_mode() == INTIMIDATE_MODE:
-                self.InermidiateOpponentBoard.setIcon(QIcon(f"./img/boards_{self.__user.nickname}/opponent_board.png"))
-                self.InermidiateOpponentBoard.setIconSize(QSize(200, 200))
-                self.InermidiateOpponentBoard.setVisible(True)
+                self.IntermidiateOpponentBoard.setIcon(QIcon(f"./img/boards_{self.__user.nickname}/opponent_board.png"))
+                self.IntermidiateOpponentBoard.setIconSize(QSize(200, 200))
+                self.IntermidiateOpponentBoard.setVisible(True)
                 self.EasyOpponentBoard.setVisible(False)
                 self.ExpertOpponentBoard.setVisible(False)
             elif self.__winmine.get_mode() == EXPERT_MODE:
@@ -667,7 +672,7 @@ class MultiplayerScreen(QDialog):
                 self.ExpertOpponentBoard.setIconSize(QSize(300, 160))
                 self.ExpertOpponentBoard.setVisible(True)
                 self.EasyOpponentBoard.setVisible(False)
-                self.InermidiateOpponentBoard.setVisible(False)
+                self.IntermidiateOpponentBoard.setVisible(False)
 
     def __is_loser_or_winner(self):
         while self.__user.ws.keep_running:
@@ -679,7 +684,6 @@ class MultiplayerScreen(QDialog):
                         self.__send_message_with_protocol(str(LOST), "win_or_lose")
                 else:
                     self.__send_message_with_protocol(str(LOST), "win_or_lose")
-                break
             time.sleep(0.1)
 
     def __did_player_lose(self):
@@ -711,6 +715,7 @@ class MultiplayerScreen(QDialog):
                     self.__number_of_safe_squares = calculates.calculate_number_of_safe_squares(self.__winmine.get_board())
                     if self.__user.ws == "" or not self.__user.ws.keep_running:
                         self.ErrorLabel.setText("")
+                        self.update()
                         self.ConnectButton.setVisible(False)
                         self.DisconnectButton.setVisible(True)
                         self.ConnectingLabel.setText("Connecting...")
@@ -733,7 +738,6 @@ class MultiplayerScreen(QDialog):
         if self.__user.ws != "" and self.__user.ws.keep_running:
             self.__send_message_with_protocol(str(LOST), "win_or_lose")
         self.update()
-        self.__had_message = False
 
     def __show_cheats_screen(self):
         self.__disconnect()
