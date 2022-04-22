@@ -708,7 +708,6 @@ class MultiplayerScreen(QDialog):
     def __disconnect(self):
         if not self.__had_message:
             user_connection_manager.disconnect_ws(self.__user)
-            self.update()
         if self.__user.ws != "" and self.__user.ws.keep_running:
             self.__send_message_with_protocol(str(LOST), "win_or_lose")
         self.update()
