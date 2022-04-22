@@ -1,10 +1,9 @@
 import threading
-
 from PyQt5.QtWidgets import QStackedWidget
 from constants import WIDTH, HEIGHT, RECONNECT_TIME
 from utils import user_connection_manager
-from utils.screens_and_dialogs import LoginScreen, CheatsScreen, MultiplayerScreen, SignupScreen, AttachToProcessScreen, \
-    DisconnectDialog
+from utils.screens_and_dialogs import LoginScreen, CheatsScreen, MultiplayerScreen, SignupScreen, \
+    AttachToProcessScreen, DisconnectDialog
 from utils.user import User
 from utils.winmine_exe import WinmineExe
 
@@ -71,4 +70,3 @@ class Window:
     def init_reconnect_timer(self):
         self.connected_thread = threading.Timer(RECONNECT_TIME, self.show_reconnect_screen)
         self.connected_thread.start()
-

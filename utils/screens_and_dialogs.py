@@ -18,7 +18,8 @@ from constants import SERVER_URL, INITIALIZE_TIME, MIN_TIME, MAX_TIME, PID_INDEX
     CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_LOWER_AREA, CHANGE_BOARD_UPPER_AREA_HEIGHT, CHANGE_BOARD_LOWER_AREA_HEIGHT, \
     CHANGE_BOARD_DISTANCE_BETWEEN_BOARD_AND_UPPER_AREA, RUNNING_FLAG, MIN_NUM_OF_BOMBS, CHANGE_BOARD_FIX_ALIGNMENT, \
     DEFAULT_PID, STATUS_CODE_OK, STATUS_CODE_BAD_REQUEST, IMG_INDEX, NUMBER_OF_SECONDS_TO_COUNT_DOWN, \
-    MODE_TO_NUMBER_OF_BOMBS, CUSTOM_MODE, WON, LOST, RANK_TO_ICON, EASY_MODE, INTIMIDATE_MODE, EXPERT_MODE
+    MODE_TO_NUMBER_OF_BOMBS, CUSTOM_MODE, WON, LOST, RANK_TO_ICON, EASY_MODE, INTIMIDATE_MODE, EXPERT_MODE, \
+    WEBSOCKET_URL
 from utils import user_connection_manager, process_manager, board, calculates, pyqt_manager
 from utils.board import calculate_board, add_button
 from utils.memory import write_process_memory
@@ -538,27 +539,10 @@ class MultiplayerScreen(QDialog):
         self.XpLabel.setText("")
         self.MessagesTable.clear()
 
-    def update_after_game(self):
-        self.OpponentLabel.setText(self.__opponent_nickname)
-        self.OpponentLabel.setIcon(self.OpponentLabel.setIcon(QIcon(RANK_TO_ICON[self.__opponent_rank])))
-
     def set_buttons_status(self, is_disabled):
         self.ConnectButton.setDisabled(is_disabled)
         self.DisconnectButton.setDisabled(is_disabled)
         self.SendButton.setDisabled(is_disabled)
-
-    def __display_opponent_board(self):
-        current_board = calculate_board(self.__winmine.get_board())
-        x = REVEAL_BOARD_STARTING_X_POSITION
-        y = REVEAL_BOARD_STARTING_Y_POSITION
-        for row in range(len(current_board)):
-            x = REVEAL_BOARD_STARTING_X_POSITION
-            for column in range(len(current_board[row])):
-                add_button(self, current_board[row][column], x, y)
-                x += SQUARE_SIZE
-            y += SQUARE_SIZE
-        self.setFixedHeight(y + SQUARE_SIZE)
-        self.setFixedWidth(x + SQUARE_SIZE)
 
     def __handle_received_message(self, message):
         message = json.loads(json.loads(message))
@@ -682,14 +666,6 @@ class MultiplayerScreen(QDialog):
                     self.__send_message_with_protocol(str(LOST), "win_or_lose")
             time.sleep(0.1)
 
-    def __did_player_lose(self):
-        current_board = self.__winmine.get_board()
-        for row in range(len(current_board)):
-            for column in range(len(current_board[0])):
-                if current_board[row][column] == "BOMB_YOU_TOUCHED":
-                    return True
-        return False
-
     def __did_player_win(self):
         current_board = self.__winmine.get_board()
         number_of_bombs = MODE_TO_NUMBER_OF_BOMBS[self.__winmine.get_mode()]
@@ -717,7 +693,7 @@ class MultiplayerScreen(QDialog):
                         self.DisconnectButton.setVisible(True)
                         self.ConnectingLabel.setText("Connecting...")
                         self.__user.ws = websocket.WebSocketApp(
-                            f"ws://127.0.0.1:8000/ws?nickname={self.__user.nickname}&rank={self.__user.rank}&difficulty={self.__winmine.get_mode()}",
+                            f"{WEBSOCKET_URL}/ws?nickname={self.__user.nickname}&rank={self.__user.rank}&difficulty={self.__winmine.get_mode()}",
                             header={"Authorization": self.__user.token}, on_message=self.__on_message)
                         threading.Thread(target=self.__user.ws.run_forever).start()
                         threading.Thread(target=self.__check_if_mode_changed).start()

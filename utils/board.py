@@ -1,8 +1,7 @@
-
-from PyQt5.QtGui import QIcon
 from PIL import Image
-from constants import NUMBER_TO_ICON, SQUARE_SIZE_TOOLTIP, SYMBOL_TO_IMG_PATH, SQUARE_BUTTON_SIZE
+from PyQt5.QtGui import QIcon
 
+from constants import NUMBER_TO_ICON, SQUARE_SIZE_TOOLTIP, SYMBOL_TO_IMG_PATH, SQUARE_BUTTON_SIZE
 from utils.button import CustomButton
 
 
@@ -75,13 +74,16 @@ def create_board(matrix_board=[[]], path_to_save=""):
 
 def create_clicked_board(matrix_clicked_board=[[]], path_to_save=""):
     try:
-        board_img = init_board_img(SQUARE_SIZE_TOOLTIP * len(matrix_clicked_board[0]), SQUARE_SIZE_TOOLTIP * len(matrix_clicked_board))
+        board_img = init_board_img(SQUARE_SIZE_TOOLTIP * len(matrix_clicked_board[0]),
+                                   SQUARE_SIZE_TOOLTIP * len(matrix_clicked_board))
         for row in range(len(matrix_clicked_board)):
             for column in range(len(matrix_clicked_board[row])):
                 if str(matrix_clicked_board[row][column]) == "1":
-                    add_square(board_img, "./img/board-icons/clicked.png", column * SQUARE_SIZE_TOOLTIP, row * SQUARE_SIZE_TOOLTIP)
+                    add_square(board_img, "./img/board-icons/clicked.png", column * SQUARE_SIZE_TOOLTIP,
+                               row * SQUARE_SIZE_TOOLTIP)
                 else:
-                    add_square(board_img, "./img/board-icons/button.png", column * SQUARE_SIZE_TOOLTIP, row * SQUARE_SIZE_TOOLTIP)
+                    add_square(board_img, "./img/board-icons/button.png", column * SQUARE_SIZE_TOOLTIP,
+                               row * SQUARE_SIZE_TOOLTIP)
         if path_to_save != "":
             board_img.save(path_to_save, "PNG")
         return board_img

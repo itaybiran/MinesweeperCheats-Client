@@ -7,6 +7,7 @@ def main():
     try:
         program.run()
     except Exception as e:
+        print(e)
         program.exit()
 
 

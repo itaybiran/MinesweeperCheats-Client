@@ -4,15 +4,11 @@ import time
 from winreg import *
 import win32gui
 import win32process
-from win32con import SW_HIDE, SW_SHOW, SW_MAXIMIZE, SW_NORMAL
+from win32con import SW_HIDE, SW_SHOW, SW_NORMAL
 from constants import *
-from utils import calculates
 from utils.memory import write_process_memory, read_process_memory
 ConnectRegistry(None, HKEY_LOCAL_MACHINE)
 import pyautogui
-
-
-
 
 
 class WinmineExe(object):
@@ -92,8 +88,8 @@ class WinmineExe(object):
         write_process_memory(self.__pid, BOARD_HEIGHT_MENU_ADDRESS, height, 1)
         write_process_memory(self.__pid, BOARD_HEIGHT_ADDRESS, height, 1)
         write_process_memory(self.__pid, BOARD_WIDTH_ADDRESS, width, 1)
-        write_process_memory(self.__pid, PIXELS_TO_DRAW_HEIGHT_ADDRESS, height*SQUARE_SIZE + BAR_PIXELS_HEIGHT, 2)
-        write_process_memory(self.__pid, PIXELS_TO_DRAW_WIDTH_ADDRESS, width*SQUARE_SIZE + BAR_PIXELS_WIDTH, 2)
+        write_process_memory(self.__pid, PIXELS_TO_DRAW_HEIGHT_ADDRESS, height * SQUARE_SIZE + BAR_PIXELS_HEIGHT, 2)
+        write_process_memory(self.__pid, PIXELS_TO_DRAW_WIDTH_ADDRESS, width * SQUARE_SIZE + BAR_PIXELS_WIDTH, 2)
 
     def write_to_winmine_registry(self, key, new_value):
         key_handle = OpenKey(HKEY_CURRENT_USER, WINMINE_REGISTRY_PATH, 0, KEY_ALL_ACCESS)
@@ -115,7 +111,8 @@ class WinmineExe(object):
     def set_number_of_bombs(self, new_number_of_bombs):
         write_process_memory(self.__pid, NUMBER_OF_BOMBS_ADDRESS, new_number_of_bombs, 1)
         write_process_memory(self.__pid, INIT_NUMBER_OF_BOMBS_ADDRESS, new_number_of_bombs, 1)
-        write_process_memory(self.__pid, NUMBER_OF_SAFE_PLACES_ADDRESS, self.get_board_size()[0]*self.get_board_size()[1] - new_number_of_bombs, 2)
+        write_process_memory(self.__pid, NUMBER_OF_SAFE_PLACES_ADDRESS,
+                             self.get_board_size()[0] * self.get_board_size()[1] - new_number_of_bombs, 2)
 
     def count_backward(self, start):
         cur_time = start
@@ -140,7 +137,8 @@ class WinmineExe(object):
         write_process_memory(self.__pid, BEST_TIMES_ADDRESS[MODE_TO_NUMBER[difficulty]], score, 2)
         for index in range(MAX_NAME_LENGTH):
             try:
-                write_process_memory(self.__pid, BEST_TIME_NAMES_ADDRESS[MODE_TO_NUMBER[difficulty]] + 2 * index, ord(name[index]), 1)
+                write_process_memory(self.__pid, BEST_TIME_NAMES_ADDRESS[MODE_TO_NUMBER[difficulty]] + 2 * index,
+                                     ord(name[index]), 1)
             except IndexError:
                 write_process_memory(self.__pid, BEST_TIME_NAMES_ADDRESS[MODE_TO_NUMBER[difficulty]] + 2 * index, 0, 1)
 
@@ -184,6 +182,7 @@ class WinmineExe(object):
                 if found_pid == self.__pid:
                     hwnds.append(hwnd)
             return True
+
         hwnds = []
         win32gui.EnumWindows(callback, hwnds)
         return hwnds[0]

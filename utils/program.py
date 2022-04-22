@@ -1,7 +1,5 @@
 import sys
-import requests
 from PyQt5.QtWidgets import QApplication
-from constants import SERVER_URL
 from utils import process_manager, user_connection_manager
 from utils.user import User
 from utils.window import Window
@@ -22,6 +20,7 @@ class Program:
             self.__app.exec_()
             self.exit()
         except Exception as e:
+            print(e)
             self.exit()
 
     def exit(self):
